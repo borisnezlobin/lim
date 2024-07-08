@@ -1,0 +1,29 @@
+{
+    "name": "Placeholder Name",
+    "description": "Set time limits on your websites.",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "permissions": [
+        "activeTab",
+        "tabs",
+        "storage"
+    ],
+    "icons": {
+        "16": "public/icon.jpg",
+        "32": "public/icon.jpg",
+        "48": "public/icon.jpg",
+        "128": "public/icon.jpg"
+    },
+    "browser_action": {
+        "default_icon": "public/icon.jpg",
+        "default_title": "limits",
+        "default_popup": "./index.html",
+        "default_area": "navbar"
+    },
+    "background": {
+        "scripts": [
+            "scripts/background.js"
+        ],
+        "persistent": false
+    }
+}
