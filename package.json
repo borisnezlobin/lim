@@ -1,11 +1,12 @@
 {
-  "name": "time-liimit-ext",
+  "name": "time-limit-ext",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build && cp manifest.json dist/manifest.json && cp -R scripts dist/scripts",
+    "buildwin": "tsc -b && vite build && xcopy manifest.json dist\\ /Y && xcopy scripts dist\\scripts /s /Y",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
