@@ -18,7 +18,7 @@ function UsagePage() {
 
     useEffect(() => {
         const abc = async () => {
-            // @ts-ignore
+            // @ts-expect-error browser is "not defined", but it is in our case
             const arr: [string, UsageType][] = Object.entries((await browser.storage.local.get("usage")).usage || {});
 
             arr.sort((a, b) => b[1].time - a[1].time);
@@ -31,10 +31,10 @@ function UsagePage() {
 
     return (
         <div>
-            <h1 style={{ marginBottom: 0 }}>Today</h1>
+            <h1 style={{ marginBottom: 0 }}>Usage Today</h1>
             <button onClick={() => nav("/")}>Back</button>
             {usage ? usage.map((m) => {
-                let e = m[1];
+                const e = m[1];
                 return (
                     <div key={e.url} style={{ display: "flex", justifyContent: "space-between" }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
