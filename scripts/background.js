@@ -1,7 +1,9 @@
 /**
  * This script runs in the background and listens for tab changes, browser focus changes,
  * OS sleep events, etc. It then records the time spent on each tab and stores it in
- * the extension's local storage. Resets every day.
+ * the extension's local storage. Resets every day. Due to Manifest V3 changes,
+ * this background script is NOT persistent and will be unloaded after a few seconds...
+ * which is why we have some funnies.
  */
 
 let currentTab = "";
@@ -10,6 +12,14 @@ let currentWindowID = browser.windows.WINDOW_ID_NONE;
 let hasBrowserBeenAwake = true;
 let lastIntervalTime = Date.now();
 let currentFavicon = "";
+
+// basically if we run a quick little interval (under 15s), we can keep the background script running
+// this is a hacky way to keep the background script running
+// https://stackoverflow.com/questions/37017209/persistent-background-page-on-demand-or-an-event-page-that-doesnt-unload
+setInterval(() => {
+    console.log("background script is running");
+}, 10000);
+
 
 browser.windows.onFocusChanged.addListener((abc) => {
     console.log("window focus changed", abc);
@@ -42,12 +52,13 @@ setInterval(async () => {
         currentWindowID == browser.windows.WINDOW_ID_NONE
     ) {
         console.log(
-        "not updating time because browserawake is",
-        hasBrowserBeenAwake,
-        ", currentwindowid is",
-        currentWindowID
+            "not updating time because browserawake is",
+            hasBrowserBeenAwake,
+            ", currentwindowid is",
+            currentWindowID
         );
         currentTab = "";
+        currentFavicon = "";
         startTime = Date.now();
         return;
     }
@@ -60,10 +71,11 @@ setInterval(async () => {
 
 const handleNewUrl = async (url, favicon) => {
     // write this time spent to storage under url's sitename
-    if (!url){
+    if (!currentTab){
         startTime = Date.now();
         currentTab = url;
         currentFavicon = favicon;
+        return;
     }
 
     let timeSpent = Date.now() - startTime;
@@ -73,40 +85,42 @@ const handleNewUrl = async (url, favicon) => {
     const lastDateUpdated = new Date(lastDateUpdatedStorage.lastDateUpdated).getDate();
 
     const result = await browser.storage.local.get("usage");
+
     // if the date has changed, reset the time spent on all tabs
+    // awaits are necessary here, I think
     if (result && new Date().getDate() != lastDateUpdated) {
         // clear usage from storage
-        browser.storage.local.set({
+        await browser.storage.local.set({
             usage: {
                 [currentTab]: {
                     time: timeSpent,
-                    icon: favicon,
+                    icon: currentFavicon,
                     url: currentTab,
                 },
             },
             lastDateUpdated: Date.now(),
         });
     } else if (!result || !result.usage || !result.usage[currentTab]) {
-        browser.storage.local.set({
+        await browser.storage.local.set({
             usage: {
-            ...result.usage,
-            [currentTab]: {
-                time: timeSpent,
-                icon: favicon,
-                url: currentTab,
-            },
+                ...result.usage,
+                [currentTab]: {
+                    time: timeSpent,
+                    icon: currentFavicon,
+                    url: currentTab,
+                },
             },
             lastDateUpdated: Date.now(),
         });
     } else {
-        browser.storage.local.set({
+        await browser.storage.local.set({
             usage: {
-            ...result.usage,
-            [currentTab]: {
-                time: result.usage[currentTab].time + timeSpent,
-                icon: favicon,
-                url: currentTab,
-            },
+                ...result.usage,
+                [currentTab]: {
+                    time: result.usage[currentTab].time + timeSpent,
+                    icon: currentFavicon,
+                    url: currentTab,
+                },
             },
             lastDateUpdated: Date.now(),
         });
