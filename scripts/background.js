@@ -16,8 +16,13 @@ let currentFavicon = "";
 // basically if we run a quick little interval (under 15s), we can keep the background script running
 // this is a hacky way to keep the background script running
 // https://stackoverflow.com/questions/37017209/persistent-background-page-on-demand-or-an-event-page-that-doesnt-unload
-setInterval(() => {
+setInterval(async () => {
     console.log("background script is running");
+
+    // while we're here, we might as well update the current tab's time
+    const tab = await browser.tabs.query({ active: true, currentWindow: true });
+    console.log(tab[0]);
+    handleNewUrl(getURL(tab[0].url), tab[0].favIconUrl);
 }, 10000);
 
 
@@ -45,38 +50,28 @@ setInterval(() => {
     lastIntervalTime = Date.now();
 }, time);
 
-setInterval(async () => {
+const handleNewUrl = async (url, favicon) => {
     // don't update current tab if the browser window is not focused
     if (
         !hasBrowserBeenAwake ||
-        currentWindowID == browser.windows.WINDOW_ID_NONE
+        currentWindowID == browser.windows.WINDOW_ID_NONE ||
+        !currentTab
     ) {
         console.log(
             "not updating time because browserawake is",
             hasBrowserBeenAwake,
             ", currentwindowid is",
-            currentWindowID
+            currentWindowID,
+            "or currenttab is",
+            currentTab
         );
-        currentTab = "";
-        currentFavicon = "";
-        startTime = Date.now();
-        return;
-    }
-
-    // todo: tbh, could make this a one-time thing instead of an interval (pov: friendzoned)
-    const tab = await browser.tabs.query({ active: true, currentWindow: true });
-    console.log(tab[0]);
-    handleNewUrl(getURL(tab[0].url), tab[0].favIconUrl);
-}, time);
-
-const handleNewUrl = async (url, favicon) => {
-    // write this time spent to storage under url's sitename
-    if (!currentTab){
-        startTime = Date.now();
         currentTab = url;
         currentFavicon = favicon;
+        startTime = Date.now();
         return;
     }
+
+    // write this time spent to storage under url's sitename
 
     let timeSpent = Date.now() - startTime;
     console.log("time spent on", currentTab, ":", timeSpent);
