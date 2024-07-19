@@ -30,7 +30,7 @@ function UsagePage() {
     }, [usage]);
 
     return (
-        <div>
+        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
             <h1 style={{ marginBottom: 0 }}>Usage Today</h1>
             <button onClick={() => nav("/")}>Back</button>
             {usage ? usage.map((m) => {

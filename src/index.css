@@ -12,20 +12,14 @@ body {
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #2a2a2a;
-    justify-content: center;
-    align-items: center;
-
     margin: 0;
-    display: flex;
-    place-items: center;
-}
 
-main {
+    overflow-x: hidden;
+
     width: 480px;
-    height: 600px;
+    max-height: 600px;
     padding: 2rem;
-    height: 100%;
+    padding-top: 0.5rem;
     background-color: #242424;
 }
 
@@ -41,7 +35,6 @@ a:hover {
 
 h1 {
     font-size: 3.2em;
-    line-height: 1.1;
 }
 
 button {
