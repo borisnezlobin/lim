@@ -22,8 +22,17 @@
     },
     "background": {
         "scripts": [
-            "scripts/background.js", "scripts/oninstall.js"
+            "scripts/background.js",
+            "scripts/oninstall.js"
         ],
+        "type": "module",
         "persistent": false
-    }
+    },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["scripts/content.js"],
+            "run_at": "document_start"
+        }
+    ]
 }

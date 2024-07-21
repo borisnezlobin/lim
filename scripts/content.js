@@ -1,5 +1,16 @@
-import { getURL, limitMatches } from "./utils";
+// I wish imports were allowed in content scripts (but I can't figure out how to make them work)
+const getURL = (str) => {
+    try {
+        const url = new URL(str).hostname;
+        return url ? url : str.split("#")[0];
+    } catch (e) {
+        return str.split("#")[0];
+    }
+};
 
+const limitMatches = (url, limit) => {
+    return url.match(limit.url);
+};
 
 var html = `
 <!DOCTYPE html>
@@ -29,15 +40,12 @@ var html = `
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             background-color: #2a2a2a;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            gap: 0.1rem;
-
-            margin: 0;
-            display: flex;
             width: 100vw;
             height: 100vh;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0;
         }
 
         a {
@@ -117,6 +125,7 @@ var html = `
 // and check if it's greater than the limit (or any of the limits)
 // be careful, because some APIs are disabled in content scripts (see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis)
 const startup = () => {
+    console.log("starting content script on", window.location.href);
     blockTabIfOvertime();
 }
 
@@ -159,4 +168,5 @@ browser.runtime.onMessage.addListener((message) => {
     }
 });
 
+console.log("content script loaded");
 startup();

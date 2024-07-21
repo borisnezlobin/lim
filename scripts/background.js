@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 /**
  * This script runs in the background and listens for tab changes, browser focus changes,
  * OS sleep events, etc. It then records the time spent on each tab and stores it in
@@ -5,6 +6,14 @@
  * this background script is NOT persistent and will be unloaded after a few seconds...
  * which is why we have some funnies.
  */
+const getURL = (str) => {
+    try {
+        const url = new URL(str).hostname;
+        return url ? url : str.split("#")[0];
+    } catch (e) {
+        return str.split("#")[0];
+    }
+};
 
 let currentTab = "";
 let startTime = Date.now();
