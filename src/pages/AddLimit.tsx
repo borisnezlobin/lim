@@ -1,12 +1,15 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { LimitControllerContext } from '../lib/LimitControllerContext';
 
 /**
  * Page that has a limit-creation form (name of website, some options, and time per day)
  */
 function AddLimitPage() {
     const [website, setWebsite] = useState<string>("");
-
+    const [name, setName] = useState<string>("");
+    const [time, setTime] = useState<string>("");
+    const { addLimit } = useContext(LimitControllerContext);
     const nav = useNavigate();
 
     return (
@@ -14,32 +17,31 @@ function AddLimitPage() {
             <h1>Create Limit</h1>
             <form>
                 <input
+                    placeholder='Name'
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
+                <input
                     placeholder='Website domain (e.g. instagram.com)'
                     value={website}
                     onChange={(e) => setWebsite(e.target.value)}
                 />
+                <input
+                    placeholder="Time limit (in minutes)"
+                    value={time}
+                    type='number'
+                    onChange={(e) => setTime(e.target.value)}
+                />
             </form>
 
             <button onClick={() => {
-                // create a fake limit and add it to storage
-                // @ts-expect-error browser is not defined (it is)
-                browser.storage.local.set({
-                    limits: [
-                        {
-                            id: 1,
-                            perDay: 0,
-                            urlRegex: website,
-                            usedToday: 0,
-                            allowOneMoreMinute: false,
-                        }
-                    ]
-                });
+                // todo: form verification (eh)
+                addLimit(name, website, parseFloat(time));
                 console.log("added limit for", website);
                 nav("/");
             }}>
                 Create
             </button>
-
             <button onClick={() => nav("/")}>
                 Cancel
             </button>

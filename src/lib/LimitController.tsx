@@ -1,11 +1,12 @@
 type Limit = {
+    /** unique id for this limit, idek if it's necessary */
     id: number;
+    /** how the user decides to name this limit */
+    name: string;
     /** how much time (in minutes) we are allowed to use a website for */
     perDay: number;
     /** a regex specifying which websites to block */
     urlRegex: string;
-    /** amount we have used a website matching urlRegex today in milliseconds */
-    usedToday: number;
     /** after time is up, do we show a "one more minute" button for this limit?
      * (note: "after time" is actually one minute before time is up, lol)
     */
@@ -19,9 +20,21 @@ class LimitController {
         // read from storage.local the limits and how much they've been used so far today
     }
 
-    public async read() {
-        // @ts-expect-error browser is not defined (it is)
-        this.limits = await browser.storage.local.get("limits");
+    public read(): Promise<{ limits: Limit[] }> {
+        return new Promise((resolve) => {
+            // @ts-expect-error browser is not defined (it is)
+            browser.storage.local.get("limits").then((response) => {
+                if(response && response.limits) {
+                    this.limits = response.limits;
+                } else {
+                    this.limits = [];
+                }
+                resolve({ limits: this.limits });
+            }).catch(() => {
+                this.limits = [];
+                resolve({ limits: this.limits });
+            });
+        });
     }
 
     public add(limit: Limit) {

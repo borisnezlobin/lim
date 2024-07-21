@@ -1,4 +1,6 @@
-log = (s) => { console.log("content.js:", s); };
+/* eslint-disable no-undef */
+
+let log = (s) => { console.log("content.js:", s); };
 
 // I wish imports were allowed in content scripts (but I can't figure out how to make them work)
 const getURL = (str) => {
@@ -15,111 +17,117 @@ const limitMatches = (url, limit) => {
     return !!url.match(limit.urlRegex);
 };
 
-var html = `
-<!DOCTYPE html>
-<html>
+const getBlockedPageHTML = (limitName) => {
+    const urlObj = new URL(window.location.href);
+    const url = urlObj.host ? urlObj.host : urlObj.href.split("#")[0];
+    return `
+        <!DOCTYPE html>
+        <html>
 
-<head>
-    <title>Blocked</title>
-    <script language="javascript" type="text/javascript">
-        window.title = "Out of time";
-        window.setTimeout(() => {
-            window.location.href = "about:blank";
-        }, 5000);
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
+        <head>
+            <title>Blocked</title>
+            <style>
+                @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 
-        body {
-            font-family: "Rethink Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-            line-height: 1.5;
-            font-weight: 400;
+                body {
+                    font-family: "Rethink Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+                    line-height: 1.5;
+                    font-weight: 400;
 
-            color-scheme: light dark;
-            color: rgba(255, 255, 255, 0.87);
+                    color-scheme: light dark;
+                    color: rgba(255, 255, 255, 0.87);
 
-            font-synthesis: none;
-            text-rendering: optimizeLegibility;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            background-color: #2a2a2a;
-            width: 100vw;
-            height: 100vh;
-            justify-content: center;
-            align-items: center;
-            display: flex;
-            margin: 0;
-        }
+                    font-synthesis: none;
+                    text-rendering: optimizeLegibility;
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                    background-color: #2a2a2a;
+                    width: 100vw;
+                    height: 100vh;
+                    justify-content: center;
+                    align-items: center;
+                    display: flex;
+                    flex-direction: column;
+                    margin: 0;
+                }
 
-        a {
-            font-weight: 500;
-            color: #646cff;
-            text-decoration: inherit;
-        }
+                a {
+                    font-weight: 500;
+                    color: #646cff;
+                    text-decoration: inherit;
+                }
 
-        a:hover {
-            color: #535bf2;
-        }
+                a:hover {
+                    color: #535bf2;
+                }
 
-        h1 {
-            font-size: 3.2em;
-            line-height: 1.1;
-        }
+                h1 {
+                    font-size: 3.2em;
+                    line-height: 1.1;
+                }
 
-        button {
-            border-radius: 8px;
-            border: 1px solid transparent;
-            padding: 0.6em 1.2em;
-            font-size: 1em;
-            font-weight: 500;
-            font-family: inherit;
-            background-color: #1a1a1a;
-            cursor: pointer;
-            transition: border-color 0.25s;
-            margin: 1rem 0rem;
-        }
+                button {
+                    border-radius: 8px;
+                    border: 1px solid transparent;
+                    padding: 0.6em 1.2em;
+                    font-size: 1em;
+                    font-weight: 500;
+                    font-family: inherit;
+                    background-color: #1a1a1a;
+                    cursor: pointer;
+                    transition: border-color 0.25s;
+                    margin: 1rem 0rem;
+                }
 
-        button.icon {
-            justify-content: center;
-            align-items: center;
-            display: flex;
-            margin-right: 0.5em;
-            border-radius: 50%;
-            padding: 0.5em;
-        }
+                button.icon {
+                    justify-content: center;
+                    align-items: center;
+                    display: flex;
+                    margin-right: 0.5em;
+                    border-radius: 50%;
+                    padding: 0.5em;
+                }
 
-        button:hover {
-            border-color: #646cff;
-        }
+                button:hover {
+                    border-color: #646cff;
+                }
 
-        button:focus,
-        button:focus-visible {
-            outline: 4px auto -webkit-focus-ring-color;
-        }
+                button:focus,
+                button:focus-visible {
+                    outline: 4px auto -webkit-focus-ring-color;
+                }
 
-        @media (prefers-color-scheme: light) {
-            :root {
-                color: #213547;
-                background-color: #ffffff;
-            }
+                @media (prefers-color-scheme: light) {
+                    :root {
+                        color: #213547;
+                        background-color: #ffffff;
+                    }
 
-            a:hover {
-                color: #747bff;
-            }
+                    a:hover {
+                        color: #747bff;
+                    }
 
-            button {
-                background-color: #f9f9f9;
-            }
-        }
-    </style>
-</head>
+                    button {
+                        background-color: #f9f9f9;
+                    }
+                }
+            </style>
+            <link
+                rel="stylesheet"
+                type="text/css"
+                href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"
+            />
+        </head>
 
-<body>
-    <h1>x_x</h1>
-    <p>You've run out of time!</p>
-</body>
-
-</html>`;
+        <body>
+            <i class="ph ph-keyhole" style="font-size: 5rem;"></i>
+            <p>You've run out of time on <code>${url}</code>!</p>
+            <div style="position: absolute; bottom: 0; right: 0; padding: 1rem; padding-right: 2rem;">
+                <p>Blocked by ${limitName ? "your <code>" + limitName + "</code> limit" : "one of your limits"}.</p>
+            </div>
+        </body>
+    </html>`
+}
 
 // when this content script is loaded, we need to get all limits from storage and see which ones match this tab
 // then, we need to check if the time spent on this tab is greater than the limit (or any of the limits)
@@ -138,8 +146,8 @@ const getTimeSpentOnCurrentTab = async () => {
     return (usage && usage.usage && usage.usage[url]) ? usage.usage[url].time : 0;
 }
 
-const blockTab = () => {
-    document.documentElement.innerHTML = html;
+const blockTab = (limitName) => {
+    document.documentElement.innerHTML = getBlockedPageHTML(limitName ? limitName : "one of your limits");
 }
 
 const blockTabIfOvertime = async () => {
@@ -157,7 +165,7 @@ const blockTabIfOvertime = async () => {
         if(limitMatches(currentTab, limit)) {
             log(timeSpent, ">", limit.perDay * 60 * 1000);
             if(timeSpent > limit.perDay * 60 * 1000) {
-                blockTab();
+                blockTab(limit.name);
                 log("Blocked", currentTab, "because of limit", limit);
                 break; // no need to check the other limits, duh
             }
