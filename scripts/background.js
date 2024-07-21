@@ -21,6 +21,7 @@ let currentWindowID = browser.windows.WINDOW_ID_NONE;
 let hasBrowserBeenAwake = true;
 let lastIntervalTime = Date.now();
 let currentFavicon = "";
+let currentTabId = null;
 
 // basically if we run a quick little interval (under 15s), we can keep the background script running
 // this is a hacky way to keep the background script running
@@ -31,14 +32,14 @@ setInterval(async () => {
     // while we're here, we might as well update the current tab's time
     const tab = await browser.tabs.query({ active: true, currentWindow: true });
     console.log(tab[0]);
-    handleNewUrl(getURL(tab[0].url), tab[0].favIconUrl);
+    handleNewUrl(getURL(tab[0].url), tab[0].favIconUrl, tab[0].id);
 }, 10000);
 
 
 browser.windows.onFocusChanged.addListener((abc) => {
     console.log("window focus changed", abc);
     // if we switch windows from the browser, we need to add the time spent on the previous tab
-    if(abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentFavicon);
+    if(abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentFavicon, currentTabId);
     // iffy — browser window could be a sidebar or something. might as well count that as "active", though
     currentWindowID = abc;
 });
@@ -59,7 +60,7 @@ setInterval(() => {
     lastIntervalTime = Date.now();
 }, time);
 
-const handleNewUrl = async (url, favicon) => {
+const handleNewUrl = async (url, favicon, tabId) => {
     // don't update current tab if the browser window is not focused
     if (
         !hasBrowserBeenAwake ||
@@ -76,6 +77,7 @@ const handleNewUrl = async (url, favicon) => {
         );
         currentTab = url;
         currentFavicon = favicon;
+        currentTabId = tabId;
         startTime = Date.now();
         return;
     }
@@ -134,32 +136,38 @@ const handleNewUrl = async (url, favicon) => {
 
     totalTime += timeSpent;
 
+    try {
+        // send message to all content scripts (and popup) that we have updated the time spent on the current tab
+        console.log("sending message to content script on tab", tabId);
+        browser.tabs.sendMessage(
+            currentTabId,
+            {
+                url: currentTab,
+                type: "time-update",
+                totalTime: totalTime,
+            }
+        );
+    } catch (e) {
+        console.log("error sending message to content scripts", e); // we actually don't care, becuase sendMessage fails if there are no listeners
+    }
+
     // reset start time
     startTime = Date.now();
     currentTab = url;
     currentFavicon = favicon;
+    currentTabId = tabId;
 
-    try {
-        // send message to all content scripts (and popup) that we have updated the time spent on the current tab
-        browser.runtime.sendMessage({
-            url: currentTab,
-            type: "time-update",
-            totalTime: totalTime,
-        });
-    } catch (e) {
-        console.log("error sending message to content scripts", e); // we actually don't care, becuase sendMessage fails if there are no listeners
-    }
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
     console.log("tab activated:", activeInfo);
     let tab = await browser.tabs.get(activeInfo.tabId);
-    handleNewUrl(getURL(tab.url), tab.favIconUrl);
+    handleNewUrl(getURL(tab.url), tab.favIconUrl, tab.id);
 });
 
 browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
     if (changeInfo.url) {
         console.log("tab updated:", tabInfo.url);
-        handleNewUrl(getURL(tabInfo.url), tabInfo.favIconUrl);
+        handleNewUrl(getURL(tabInfo.url), tabInfo.favIconUrl, tabInfo.id);
     }
 });
