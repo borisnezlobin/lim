@@ -1,3 +1,5 @@
+log = (s) => { console.log("content.js:", s); };
+
 // I wish imports were allowed in content scripts (but I can't figure out how to make them work)
 const getURL = (str) => {
     try {
@@ -9,7 +11,8 @@ const getURL = (str) => {
 };
 
 const limitMatches = (url, limit) => {
-    return url.match(limit.url);
+    console.log("checking if", url, "matches", limit.urlRegex);
+    return !!url.match(limit.urlRegex);
 };
 
 var html = `
@@ -125,13 +128,14 @@ var html = `
 // and check if it's greater than the limit (or any of the limits)
 // be careful, because some APIs are disabled in content scripts (see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis)
 const startup = () => {
-    console.log("starting content script on", window.location.href);
+    log("starting content script on", window.location.href);
     blockTabIfOvertime();
 }
 
 const getTimeSpentOnCurrentTab = async () => {
     const usage = await browser.storage.local.get("usage");
-    return usage[getURL(window.location.href)].time;
+    const url = getURL(window.location.href);
+    return (usage && usage.usage && usage.usage[url]) ? usage.usage[url].time : 0;
 }
 
 const blockTab = () => {
@@ -142,18 +146,19 @@ const blockTabIfOvertime = async () => {
     const limits = await browser.storage.local.get("limits");
 
     // I wish calculus caused this function to return (explanation: I wish calculus had no limits (my knowldege of calculus is limited (but math knows no limits (except when you have to evaluate a limit))))
-    if (!limits) return;
+    if (!limits || !limits.limits) return;
 
     const currentTab = new URL(window.location.href).origin;
     const timeSpent = await getTimeSpentOnCurrentTab();
 
-    for(const limit of limits) {
+    for(const limit of limits.limits) {
         // unfortunately, we can't store the limits that match the current tab in a global var,
         // because the content script's globals are shared by all content scripts (which is running in every tab)
         if(limitMatches(currentTab, limit)) {
-            if(timeSpent > limit.time * 60 * 1000) {
+            log(timeSpent, ">", limit.perDay * 60 * 1000);
+            if(timeSpent > limit.perDay * 60 * 1000) {
                 blockTab();
-                console.log("Blocked", currentTab, "because of limit", limit);
+                log("Blocked", currentTab, "because of limit", limit);
                 break; // no need to check the other limits, duh
             }
         }
@@ -161,6 +166,7 @@ const blockTabIfOvertime = async () => {
 }
 
 browser.runtime.onMessage.addListener((message) => {
+    log("received message", message);
     if(message.type === "time-update") {
         if(message.url == getURL(window.location.href)) {
             blockTabIfOvertime();
@@ -168,5 +174,5 @@ browser.runtime.onMessage.addListener((message) => {
     }
 });
 
-console.log("content script loaded");
+log("content script loaded");
 startup();

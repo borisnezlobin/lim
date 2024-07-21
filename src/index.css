@@ -17,7 +17,7 @@ body {
     overflow-x: hidden;
 
     width: 480px;
-    max-height: 600px;
+    height: 600px;
     padding: 2rem;
     padding-top: 0.5rem;
     background-color: #242424;
