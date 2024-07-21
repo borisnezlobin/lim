@@ -55,7 +55,7 @@ const handleNewUrl = async (url, favicon) => {
     if (
         !hasBrowserBeenAwake ||
         currentWindowID == browser.windows.WINDOW_ID_NONE ||
-        !currentTab
+        (currentTab === null || currentTab === undefined || currentTab === "")
     ) {
         console.log(
             "not updating time because browserawake is",
@@ -83,6 +83,7 @@ const handleNewUrl = async (url, favicon) => {
 
     // if the date has changed, reset the time spent on all tabs
     // awaits are necessary here, I think
+    var totalTime = 0;
     if (result && new Date().getDate() != lastDateUpdated) {
         // clear usage from storage
         await browser.storage.local.set({
@@ -119,16 +120,26 @@ const handleNewUrl = async (url, favicon) => {
             },
             lastDateUpdated: Date.now(),
         });
+        totalTime = result.usage[currentTab].time;
     }
+
+    totalTime += timeSpent;
 
     // reset start time
     startTime = Date.now();
     currentTab = url;
     currentFavicon = favicon;
 
-    // try {
-    //     browser.runtime.sendMessage({ newUrl: url, type: "location-change" });
-    // } catch (e) {}
+    try {
+        // send message to all content scripts (and popup) that we have updated the time spent on the current tab
+        browser.runtime.sendMessage({
+            url: currentTab,
+            type: "time-update",
+            totalTime: totalTime,
+        });
+    } catch (e) {
+        console.log("error sending message to content scripts", e); // we actually don't care, becuase sendMessage fails if there are no listeners
+    }
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
@@ -143,12 +154,3 @@ browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
         handleNewUrl(getURL(tabInfo.url), tabInfo.favIconUrl);
     }
 });
-
-const getURL = (str) => {
-    try {
-        const url = new URL(str).hostname;
-        return url ? url : str.split("#")[0];
-    } catch (e) {
-        return str.split("#")[0];
-    }
-};

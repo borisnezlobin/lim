@@ -1,4 +1,3 @@
-
 type Limit = {
     id: number;
     /** how much time (in minutes) we are allowed to use a website for */
@@ -21,7 +20,7 @@ class LimitController {
     }
 
     public async read() {
-        // @ts-ignore
+        // @ts-expect-error browser is not defined (it is)
         this.limits = await browser.storage.local.get("limits");
     }
 
@@ -32,7 +31,7 @@ class LimitController {
     }
 
     public async write() {
-        // @ts-ignore
+        // @ts-expect-error browser is not defined (it is)
         await browser.storage.local.set({ limits: this.limits });
     }
 }

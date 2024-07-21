@@ -1,3 +1,4 @@
+import { getURL, limitMatches } from "./utils";
 
 
 var html = `
@@ -109,16 +110,53 @@ var html = `
 
 </html>`;
 
-var abc1 = async () => {
-    const val = await browser.storage.local.get("test");
-
-    if (!val) browser.storage.local.set({ test: 0 });
-    else browser.storage.local.set({ test: val.test + 1 });
-
-    console.log("from content script:");
-    console.log(val);
-    document.body.innerHTML = html;
+// when this content script is loaded, we need to get all limits from storage and see which ones match this tab
+// then, we need to check if the time spent on this tab is greater than the limit (or any of the limits)
+// if it is, we need to block the tab and show the html
+// otherwise, whenever we receive a message from the background script, we need to update the time spent on this tab
+// and check if it's greater than the limit (or any of the limits)
+// be careful, because some APIs are disabled in content scripts (see https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts#webextension_apis)
+const startup = () => {
+    blockTabIfOvertime();
 }
 
-console.log("content script");
-abc1();
+const getTimeSpentOnCurrentTab = async () => {
+    const usage = await browser.storage.local.get("usage");
+    return usage[getURL(window.location.href)].time;
+}
+
+const blockTab = () => {
+    document.documentElement.innerHTML = html;
+}
+
+const blockTabIfOvertime = async () => {
+    const limits = await browser.storage.local.get("limits");
+
+    // I wish calculus caused this function to return (explanation: I wish calculus had no limits (my knowldege of calculus is limited (but math knows no limits (except when you have to evaluate a limit))))
+    if (!limits) return;
+
+    const currentTab = new URL(window.location.href).origin;
+    const timeSpent = await getTimeSpentOnCurrentTab();
+
+    for(const limit of limits) {
+        // unfortunately, we can't store the limits that match the current tab in a global var,
+        // because the content script's globals are shared by all content scripts (which is running in every tab)
+        if(limitMatches(currentTab, limit)) {
+            if(timeSpent > limit.time * 60 * 1000) {
+                blockTab();
+                console.log("Blocked", currentTab, "because of limit", limit);
+                break; // no need to check the other limits, duh
+            }
+        }
+    }
+}
+
+browser.runtime.onMessage.addListener((message) => {
+    if(message.type === "time-update") {
+        if(message.url == getURL(window.location.href)) {
+            blockTabIfOvertime();
+        }
+    }
+});
+
+startup();

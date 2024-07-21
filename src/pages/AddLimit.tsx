@@ -20,6 +20,26 @@ function AddLimitPage() {
                 />
             </form>
 
+            <button onClick={() => {
+                // create a fake limit and add it to storage
+                // @ts-expect-error browser is not defined (it is)
+                browser.storage.local.set({
+                    limits: [
+                        {
+                            id: 1,
+                            perDay: 0,
+                            urlRegex: website,
+                            usedToday: 0,
+                            allowOneMoreMinute: false,
+                        }
+                    ]
+                });
+                console.log("added limit for", website);
+                nav("/");
+            }}>
+                Create
+            </button>
+
             <button onClick={() => nav("/")}>
                 Cancel
             </button>
