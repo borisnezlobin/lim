@@ -15,7 +15,7 @@ function AddLimitPage() {
     return (
         <div>
             <h1>Create Limit</h1>
-            <form>
+            <form style={{ width: "100%" }}>
                 <input
                     placeholder='Name'
                     value={name}
@@ -39,6 +39,8 @@ function AddLimitPage() {
                 addLimit(name, website, parseFloat(time));
                 console.log("added limit for", website);
                 nav("/");
+            }} style={{
+                marginRight: "1em"
             }}>
                 Create
             </button>

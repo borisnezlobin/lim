@@ -34,6 +34,7 @@ function UsagePage() {
             <h1 style={{ marginBottom: 0 }}>Usage Today</h1>
             <button onClick={() => nav("/")}>Back</button>
             {usage ? usage.map((m) => {
+                if(m[1].time < 60 * 1000) return null;
                 const e = m[1];
                 return (
                     <div key={e.url} style={{ display: "flex", justifyContent: "space-between" }}>
