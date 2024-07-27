@@ -5,12 +5,14 @@ type LimitControllerContextType = {
     limits: Limit[] | null;
     addLimit: (name: string, regex: string, time: number) => void;
     isEmpty: () => boolean;
+    deleteLimit: (id: number) => void;
 }
 
 const LimitControllerContext = createContext<LimitControllerContextType>({
     limits: null,
     addLimit: () => {},
     isEmpty: () => true,
+    deleteLimit: () => {}
 });
 
 const LimitControllerProvider = ({ children }: { children: React.ReactNode }) => {
@@ -26,15 +28,23 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
     }, [limits, limitController]);
 
     function addLimit(name: string, regex: string, time: number){
+        // todo: calculate usedToday for this limit
         const limit: Limit = {
             id: (limits && limits.length + 1) || 0,
             name: name,
             urlRegex: regex,
             perDay: time,
             allowOneMoreMinute: false,
+            usedToday: 0
         }
         limitController.add(limit);
         setLimits(limitController.limits);
+    }
+
+    function deleteLimit(id: number){
+        limitController.remove(id).then((limits) => {
+            setLimits(limits);
+        });
     }
 
     function isEmpty(){
@@ -45,7 +55,8 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
         <LimitControllerContext.Provider value={{
             limits,
             addLimit,
-            isEmpty
+            isEmpty,
+            deleteLimit
         }}>
             {children}
         </LimitControllerContext.Provider>

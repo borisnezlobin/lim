@@ -49,6 +49,13 @@ class LimitController {
         // @ts-expect-error browser is not defined (it is)
         await browser.storage.local.set({ limits: this.limits });
     }
+
+    public async remove(id: number) {
+        this.limits = this.limits.filter((limit) => limit.id !== id);
+        await this.write();
+
+        return this.limits;
+    }
 }
 
 export { LimitController };
