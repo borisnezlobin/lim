@@ -139,7 +139,8 @@ const handleNewUrl = async (url, favicon, tabId) => {
     // go through each limit and check if this tab matches it. if it does, we want to increase usedToday for that limit
     const limits = await browser.storage.local.get("limits");
     if (limits && limits.limits) {
-        for (const limit in limits.limits) {
+        for (const limit of limits.limits) {
+            var newLimit = {...limit};
             let usedToday = 0;
             if (currentTab.match(limit.urlRegex)) {
                 console.log("limit matched", limit);
