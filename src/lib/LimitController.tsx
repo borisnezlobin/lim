@@ -7,6 +7,8 @@ type Limit = {
     perDay: number;
     /** a regex specifying which websites to block */
     urlRegex: string;
+    /** how much time we've used so far today */
+    usedToday: number;
     /** after time is up, do we show a "one more minute" button for this limit?
      * (note: "after time" is actually one minute before time is up, lol)
     */

@@ -161,14 +161,14 @@ const blockTabIfOvertime = async () => {
     if (!limits || !limits.limits) return;
 
     const currentTab = new URL(window.location.href).origin;
-    const timeSpent = await getTimeSpentOnCurrentTab();
+    // const timeSpent = await getTimeSpentOnCurrentTab();
 
     for(const limit of limits.limits) {
         // unfortunately, we can't store the limits that match the current tab in a global var,
         // because the content script's globals are shared by all content scripts (which is running in every tab)
         if(limitMatches(currentTab, limit)) {
-            log(timeSpent, ">", limit.perDay * 60 * 1000);
-            if(timeSpent > limit.perDay * 60 * 1000) {
+            log(currentTab, "matches", limit, "and has spent", limit.usedToday, "ms today");
+            if(limit.usedToday > limit.perDay * 60 * 1000) {
                 blockTab(limit.name);
                 log("Blocked", currentTab, "because of limit", limit);
                 break; // no need to check the other limits, duh

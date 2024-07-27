@@ -136,6 +136,24 @@ const handleNewUrl = async (url, favicon, tabId) => {
 
     totalTime += timeSpent;
 
+    // go through each limit and check if this tab matches it. if it does, we want to increase usedToday for that limit
+    const limits = await browser.storage.local.get("limits");
+    if (limits && limits.limits) {
+        for (const limit in limits.limits) {
+            let usedToday = 0;
+            if (currentTab.match(limit.urlRegex)) {
+                console.log("limit matched", limit);
+                if(new Date().getDate() == lastDateUpdated )
+                    usedToday = limit.usedToday + timeSpent
+                else usedToday = timeSpent;
+            }
+            limit.usedToday = usedToday;
+        }
+        await browser.storage.local.set({
+            limits: limits.limits,
+        });
+    }
+
     try {
         // send message to all content scripts (and popup) that we have updated the time spent on the current tab
         console.log("sending message to content script on tab", tabId);
