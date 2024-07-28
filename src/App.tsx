@@ -1,6 +1,6 @@
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { HomePage } from './pages/Home'
-import { AddLimitPage } from './pages/AddLimit'
+import { AddLimitPage } from './pages/AddOrEditLimit'
 import { UsagePage } from './pages/UsagePage';
 import { LimitControllerProvider } from './lib/LimitControllerContext';
 
