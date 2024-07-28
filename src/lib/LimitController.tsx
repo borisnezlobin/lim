@@ -56,6 +56,20 @@ class LimitController {
 
         return this.limits;
     }
+
+    public async edit(id: number, name: string, regex: string, time: number) {
+        this.limits = this.limits.map((limit) => {
+            if(limit.id === id) {
+                limit.name = name;
+                limit.urlRegex = regex;
+                limit.perDay = time;
+            }
+            return limit;
+        });
+
+        await this.write();
+        return this.limits;
+    }
 }
 
 export { LimitController };

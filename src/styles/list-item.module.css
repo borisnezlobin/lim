@@ -20,7 +20,7 @@ p {
     background-color: #2a2a2a;
 }
 
-.trashButton {
+.iconButton {
     display: flex;
     justify-content: center;
     margin: 0;
@@ -41,4 +41,13 @@ p {
 
 .trashButton:hover {
     transform: translateY(-2px);
+}
+
+.overtime, .overtime *, .overtime .pill {
+    background-color: #360b0b;
+}
+
+.overtime {
+    border: 1px solid;
+    border-color: #ff0000;
 }

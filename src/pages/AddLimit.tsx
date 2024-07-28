@@ -1,20 +1,32 @@
 import { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { LimitControllerContext } from '../lib/LimitControllerContext';
 
 /**
  * Page that has a limit-creation form (name of website, some options, and time per day)
  */
 function AddLimitPage() {
-    const [website, setWebsite] = useState<string>("");
-    const [name, setName] = useState<string>("");
-    const [time, setTime] = useState<string>("");
-    const { addLimit } = useContext(LimitControllerContext);
+    const location = useLocation();
+    const isAdding = location.pathname === "/create";
+
+    const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex);
+    const [name, setName] = useState<string>(isAdding ? "" : location.state.limit.name);
+    const [time, setTime] = useState<string>(isAdding ? "" : location.state.limit.perDay.toString());
+    const { addLimit, editLimit } = useContext(LimitControllerContext);
     const nav = useNavigate();
+
+    const submit = () => {
+        if (isAdding) {
+            addLimit(name, website, parseFloat(time));
+        } else {
+            editLimit(location.state.limit.id, name, website, parseFloat(time));
+        }
+        nav("/");
+    }
 
     return (
         <div>
-            <h1>Create Limit</h1>
+            <h1>{isAdding ? "Create" : "Edit"} Limit</h1>
             <form style={{ width: "100%" }}>
                 <input
                     placeholder='Name'
@@ -34,15 +46,10 @@ function AddLimitPage() {
                 />
             </form>
 
-            <button onClick={() => {
-                // todo: form verification (eh)
-                addLimit(name, website, parseFloat(time));
-                console.log("added limit for", website);
-                nav("/");
-            }} style={{
+            <button onClick={submit} style={{
                 marginRight: "1em"
             }}>
-                Create
+                {isAdding ? "Create" : "Save"}
             </button>
             <button onClick={() => nav("/")}>
                 Cancel

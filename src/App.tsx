@@ -12,6 +12,7 @@ function App() {
                 <Routes>
                     <Route path='/' element={<HomePage />} />
                     <Route path="/create" element={<AddLimitPage />} />
+                    <Route path="/edit" element={<AddLimitPage />} />
                     <Route path="/usage" element={<UsagePage />} />
                 </Routes>
             </MemoryRouter>

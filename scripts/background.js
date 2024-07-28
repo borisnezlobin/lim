@@ -140,12 +140,11 @@ const handleNewUrl = async (url, favicon, tabId) => {
     const limits = await browser.storage.local.get("limits");
     if (limits && limits.limits) {
         for (const limit of limits.limits) {
-            var newLimit = {...limit};
-            let usedToday = 0;
+            let usedToday = limit.usedToday;
             if (currentTab.match(limit.urlRegex)) {
                 console.log("limit matched", limit);
-                if(new Date().getDate() == lastDateUpdated )
-                    usedToday = limit.usedToday + timeSpent
+                if (new Date().getDate() == lastDateUpdated)
+                    usedToday += timeSpent
                 else usedToday = timeSpent;
             }
             limit.usedToday = usedToday;
