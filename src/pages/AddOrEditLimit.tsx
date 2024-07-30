@@ -5,7 +5,7 @@ import { LimitControllerContext } from '../lib/LimitControllerContext';
 /**
  * Page that has a limit-creation form (name of website, some options, and time per day)
  */
-function AddLimitPage() {
+function AddOrEditLimitPage() {
     const location = useLocation();
     const isAdding = location.pathname === "/create";
 
@@ -58,4 +58,4 @@ function AddLimitPage() {
     )
 }
 
-export { AddLimitPage }
+export { AddOrEditLimitPage }

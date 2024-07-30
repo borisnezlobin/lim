@@ -1,12 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { formatMS } from "../lib/formatMS";
-
-type UsageType = {
-    time: number,
-    icon: string;
-    url: string;
-};
+import { UsageContext } from "../lib/UsageContext";
 
 
 /** 
@@ -14,26 +9,13 @@ type UsageType = {
  */
 function UsagePage() {
     const nav = useNavigate();
-    const [usage, setUsage] = useState<[string, UsageType][] | null>(null);
-
-    useEffect(() => {
-        const abc = async () => {
-            // @ts-expect-error browser is "not defined", but it is in our case
-            const arr: [string, UsageType][] = Object.entries((await browser.storage.local.get("usage")).usage || {});
-
-            arr.sort((a, b) => b[1].time - a[1].time);
-
-            setUsage(arr);
-        }
-
-        if (usage == null) abc();
-    }, [usage]);
+    const { usageArr } = useContext(UsageContext);
 
     return (
         <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 16 }}>
             <h1 style={{ marginBottom: 0 }}>Usage Today</h1>
             <button onClick={() => nav("/")}>Back</button>
-            {usage ? usage.map((m) => {
+            {usageArr ? usageArr.map((m) => {
                 if(m[1].time < 60 * 1000) return null;
                 const e = m[1];
                 const name = e.url.length > 40 ? e.url.slice(0, 40) + "..." : e.url;

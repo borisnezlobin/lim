@@ -1,5 +1,6 @@
-import { createContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { Limit, LimitController } from './LimitController';
+import { UsageContext } from './UsageContext';
 
 type LimitControllerContextType = {
     limits: Limit[] | null;
@@ -18,6 +19,7 @@ const LimitControllerContext = createContext<LimitControllerContextType>({
 });
 
 const LimitControllerProvider = ({ children }: { children: React.ReactNode }) => {
+    const { usageArr } = useContext(UsageContext);
     const limitController = useMemo(() => new LimitController(), []);
     const [limits, setLimits] = useState<Limit[] | null>(null);
 
@@ -30,7 +32,6 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
     }, [limits, limitController]);
 
     function addLimit(name: string, regex: string, time: number){
-        // todo: calculate usedToday for this limit
         const limit: Limit = {
             id: (limits && limits.length + 1) || 0,
             name: name,
@@ -39,6 +40,13 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
             allowOneMoreMinute: false,
             usedToday: 0
         }
+
+        for(const usage of usageArr){
+            if(usage[1].url.includes(regex)){
+                limit.usedToday += usage[1].time;
+            }
+        }
+
         limitController.add(limit);
         setLimits(limitController.limits);
     }
