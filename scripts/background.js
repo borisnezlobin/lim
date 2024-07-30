@@ -141,11 +141,10 @@ const handleNewUrl = async (url, favicon, tabId) => {
     if (limits && limits.limits) {
         for (const limit of limits.limits) {
             let usedToday = limit.usedToday;
+            if (new Date().getDate() !== lastDateUpdated) usedToday = 0;
             if (currentTab.match(limit.urlRegex)) {
                 console.log("limit matched", limit);
-                if (new Date().getDate() == lastDateUpdated)
-                    usedToday += timeSpent
-                else usedToday = timeSpent;
+                usedToday += timeSpent;
             }
             limit.usedToday = usedToday;
         }
