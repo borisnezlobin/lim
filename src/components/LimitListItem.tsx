@@ -24,19 +24,22 @@ function LimitListItem({ limit }: { limit: Limit }) {
 
     return (
         <div key={limit.id} className={`${styles.container} ${isOvertime ? styles.overtime : ""}`}>
-            <code className={`${isOvertime ? styles.overtime : ""}`}>
-                {Math.floor(limit.usedToday / MINUTES)} / {limit.perDay}
-            </code>
             <div>
                 <h2>{name}</h2>
                 <code>{limit.urlRegex.length > 20 ? limit.urlRegex.slice(0, 20) + "..." : limit.urlRegex}</code>
             </div>
             <div className={styles.right}>
+                <code className={`${isOvertime ? styles.overtime : ""} ${styles.usage}`}>
+                    <span style={{ fontWeight: "bold", fontSize: "1.5rem" }}>
+                        {Math.floor(limit.usedToday / MINUTES)}
+                    </span>
+                    /{limit.perDay}
+                </code>
                 <button className={styles.iconButton} onClick={editLimit}>
                     <PencilSimple size={24} />
                 </button>
                 <button className={styles.iconButton} onClick={() => deleteLimit(limit.id)}>
-                    <TrashSimple color='red' size={24} />
+                    <TrashSimple color='#a40a0b' size={24} />
                 </button>
             </div>
         </div>

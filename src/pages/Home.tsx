@@ -30,7 +30,7 @@ function HomePage() {
     return (
         <div>
             <h1 style={{ marginBottom: 0 }}>Your Limits</h1>
-            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: "1rem" }}>
                 <button onClick={() => nav("/create")}>Create Limit</button>
                 <Link to="/usage">Go to Usage</Link>
             </div>

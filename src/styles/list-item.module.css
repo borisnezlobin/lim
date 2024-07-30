@@ -18,6 +18,7 @@ p {
     border-radius: 8px;
     margin-bottom: 8px;
     background-color: #2a2a2a;
+    border: 1px solid #3a3a3a;
 }
 
 .iconButton {
@@ -49,5 +50,5 @@ p {
 
 .overtime {
     border: 1px solid;
-    border-color: #ff0000;
+    border-color: #7a0204;
 }
