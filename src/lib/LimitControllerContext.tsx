@@ -33,7 +33,7 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
 
     function addLimit(name: string, regex: string, time: number){
         const limit: Limit = {
-            id: (limits && limits.length + 1) || 0,
+            id: Date.now(),
             name: name,
             urlRegex: regex,
             perDay: time,
