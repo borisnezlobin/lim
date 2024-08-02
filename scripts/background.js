@@ -189,22 +189,10 @@ browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
 });
 
 // listen for messages from content scripts
-browser.runtime.onMessage.addListener(async (message) => {
+browser.runtime.onMessage.addListener(async (message, sender) => {
     if (message.type === "close-tab") {
         const tab = await browser.tabs.query({ active: true, currentWindow: true });
         chrome.tabs.create({ url: "./scripts/blocked_page.html?name=" + message.name });
         chrome.tabs.remove(tab[0].id);
-    } else if (message.type == "execute-script") {
-        const js = await (await fetch(browser.runtime.getURL(message.path))).text();
-        const id = `js.${performance.now()}${Math.random()}`;
-        await browser.tabs.executeScript(sender.tab.id, {
-            // 0 at the end is to prevent executeScript from additionally returning
-            // the function's code as a string, which we don't need 
-            code: `window["${id}"] = () => { ${js} };0`,
-            frameId: sender.frameId,
-            matchAboutBlank: true,
-            runAt: 'document_start',
-        });
-        return id;
     }
 });

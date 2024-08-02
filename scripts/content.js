@@ -42,23 +42,10 @@ const getTimeSpentOnCurrentTab = async () => {
     return (usage && usage.usage && usage.usage[url]) ? usage.usage[url].time : 0;
 }
 
-const blockTab = (limitName) => {
+const blockTab = async (limitName) => {
     // send message to background script to close the tab
     browser.runtime.sendMessage({ type: "close-tab", name: limitName });
-    const js = getResource("scripts/blocked.js");
-    js();
-    // document.documentElement.innerHTML = getBlockedPageHTML(limitName ? limitName : "one of your limits");
 }
-
-async function getResource(name) {
-    const scriptId = await browser.runtime.sendMessage({
-        type: 'execute-script',
-        path: name,
-    });
-    const js = window[scriptId];
-    delete window[scriptId];
-    return js;
-};
 
 const blockTabIfOvertime = async () => {
     browser.storage.local.get("limits").then((limits) => {

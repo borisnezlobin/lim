@@ -1,3 +1,4 @@
+// this script won't load :(
 
 // get limitName from URL
 const urlParams = new URLSearchParams(window.location.search);
