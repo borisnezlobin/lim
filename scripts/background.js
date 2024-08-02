@@ -39,7 +39,7 @@ setInterval(async () => {
 browser.windows.onFocusChanged.addListener((abc) => {
     console.log("window focus changed", abc);
     // if we switch windows from the browser, we need to add the time spent on the previous tab
-    if(abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentFavicon, currentTabId);
+    if (abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentFavicon, currentTabId);
     // iffy — browser window could be a sidebar or something. might as well count that as "active", though
     currentWindowID = abc;
 });
@@ -173,7 +173,6 @@ const handleNewUrl = async (url, favicon, tabId) => {
     currentTab = url;
     currentFavicon = favicon;
     currentTabId = tabId;
-
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
@@ -186,5 +185,26 @@ browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
     if (changeInfo.url) {
         console.log("tab updated:", tabInfo.url);
         handleNewUrl(getURL(tabInfo.url), tabInfo.favIconUrl, tabInfo.id);
+    }
+});
+
+// listen for messages from content scripts
+browser.runtime.onMessage.addListener(async (message) => {
+    if (message.type === "close-tab") {
+        const tab = await browser.tabs.query({ active: true, currentWindow: true });
+        chrome.tabs.create({ url: "./scripts/blocked_page.html?name=" + message.name });
+        chrome.tabs.remove(tab[0].id);
+    } else if (message.type == "execute-script") {
+        const js = await (await fetch(browser.runtime.getURL(message.path))).text();
+        const id = `js.${performance.now()}${Math.random()}`;
+        await browser.tabs.executeScript(sender.tab.id, {
+            // 0 at the end is to prevent executeScript from additionally returning
+            // the function's code as a string, which we don't need 
+            code: `window["${id}"] = () => { ${js} };0`,
+            frameId: sender.frameId,
+            matchAboutBlank: true,
+            runAt: 'document_start',
+        });
+        return id;
     }
 });

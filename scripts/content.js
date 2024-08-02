@@ -22,111 +22,7 @@ const limitMatches = (url, limit) => {
 const getBlockedPageHTML = (limitName) => {
     const urlObj = new URL(window.location.href);
     const url = urlObj.host ? urlObj.host : urlObj.href.split("#")[0];
-    return `
-            <title>Blocked</title>
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
-
-                html, body {
-                    font-family: "Rethink Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-                    line-height: 1.5 !important;
-                    font-weight: 400 !important;
-
-                    color-scheme: light dark !important;
-                    color: rgba(255, 255, 255, 0.87) !important;
-
-                    font-synthesis: none !important;
-                    text-rendering: optimizeLegibility !important;
-                    -webkit-font-smoothing: antialiased !important;
-                    -moz-osx-font-smoothing: grayscale !important;
-                    background-color: #2a2a2a !important;
-                    width: 100vw !important;
-                    height: 100vh !important;
-                    overflow: hidden !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    display: flex !important;
-                    flex-direction: column !important;
-                    margin: 0 !important;
-                }
-
-                a {
-                    font-weight: 500;
-                    color: #646cff;
-                    text-decoration: inherit;
-                }
-
-                a:hover {
-                    color: #535bf2;
-                }
-
-                h1 {
-                    font-size: 3.2em;
-                    line-height: 1.1;
-                }
-
-                button {
-                    border-radius: 8px;
-                    border: 1px solid transparent;
-                    padding: 0.6em 1.2em;
-                    font-size: 1em;
-                    font-weight: 500;
-                    font-family: inherit;
-                    background-color: #1a1a1a;
-                    cursor: pointer;
-                    transition: border-color 0.25s;
-                    margin: 1rem 0rem;
-                }
-
-                button.icon {
-                    justify-content: center;
-                    align-items: center;
-                    display: flex;
-                    margin-right: 0.5em;
-                    border-radius: 50%;
-                    padding: 0.5em;
-                }
-
-                button:hover {
-                    border-color: #646cff;
-                }
-
-                button:focus,
-                button:focus-visible {
-                    outline: 4px auto -webkit-focus-ring-color;
-                }
-
-                @media (prefers-color-scheme: light) {
-                    body {
-                        color: #213547;
-                        background-color: #ffffff;
-                    }
-
-                    a:hover {
-                        color: #747bff;
-                    }
-
-                    button {
-                        background-color: #f9f9f9;
-                    }
-                }
-            </style>
-            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="#ddd" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm40-104a40,40,0,1,0-65.94,30.44L88.68,172.77A8,8,0,0,0,96,184h64a8,8,0,0,0,7.32-11.23l-13.38-30.33A40.14,40.14,0,0,0,168,112ZM136.68,143l11,25.05H108.27l11-25.05A8,8,0,0,0,116,132.79a24,24,0,1,1,24,0A8,8,0,0,0,136.68,143Z"></path></svg>
-            <div style="position: absolute; bottom: 0; width: calc(100vw - 4rem); display: flex; flex-wrap: wrap; flex-direction: row; align-items: center; justify-content: space-between; padding: 1rem 2rem; font-size: 1rem;">
-                <p>Not meant to be blocked? Try reloading.</p>
-                <p>Blocked by ${limitName ? "your " + limitName + " limit" : "one of your limits"}.</p>
-            </div>
-            <script type="text/javascript">
-                const svg = document.querySelector("svg");
-                document.addEventListener("mousemove", (e) => {
-                    const rect = svg.getBoundingClientRect();
-                    const x = e.clientX - rect.left;
-                    const y = e.clientY - rect.top;
-                    const angle = Math.atan2(y - rect.height / 2, x - rect.width / 2);
-                    svg.style.transform = "rotate(" + angle + "rad)";
-                });
-            </script>
-    </html>`
+    return ``
 }
 
 // when this content script is loaded, we need to get all limits from storage and see which ones match this tab
@@ -147,8 +43,22 @@ const getTimeSpentOnCurrentTab = async () => {
 }
 
 const blockTab = (limitName) => {
-    document.documentElement.innerHTML = getBlockedPageHTML(limitName ? limitName : "one of your limits");
+    // send message to background script to close the tab
+    browser.runtime.sendMessage({ type: "close-tab", name: limitName });
+    const js = getResource("scripts/blocked.js");
+    js();
+    // document.documentElement.innerHTML = getBlockedPageHTML(limitName ? limitName : "one of your limits");
 }
+
+async function getResource(name) {
+    const scriptId = await browser.runtime.sendMessage({
+        type: 'execute-script',
+        path: name,
+    });
+    const js = window[scriptId];
+    delete window[scriptId];
+    return js;
+};
 
 const blockTabIfOvertime = async () => {
     browser.storage.local.get("limits").then((limits) => {
@@ -160,12 +70,12 @@ const blockTabIfOvertime = async () => {
     const currentTab = new URL(window.location.href).origin;
     // const timeSpent = await getTimeSpentOnCurrentTab();
 
-    for(const limit of cachedLimits) {
+    for (const limit of cachedLimits) {
         // unfortunately, we can't store the limits that match the current tab in a global var,
         // because the content script's globals are shared by all content scripts (which is running in every tab)
-        if(limitMatches(currentTab, limit)) {
+        if (limitMatches(currentTab, limit)) {
             log(currentTab, "matches", limit, "and has spent", limit.usedToday, "ms today");
-            if(limit.usedToday > limit.perDay * 60 * 1000) {
+            if (limit.usedToday > limit.perDay * 60 * 1000) {
                 blockTab(limit.name);
                 log("Blocked", currentTab, "because of limit", limit);
                 break; // no need to check the other limits, duh
@@ -176,8 +86,8 @@ const blockTabIfOvertime = async () => {
 
 browser.runtime.onMessage.addListener((message) => {
     log("received message", message);
-    if(message.type === "time-update") {
-        if(message.url == getURL(window.location.href)) {
+    if (message.type === "time-update") {
+        if (message.url == getURL(window.location.href)) {
             blockTabIfOvertime();
         }
     }
