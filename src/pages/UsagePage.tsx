@@ -20,9 +20,9 @@ function UsagePage() {
                 Back
             </button>
             {usageArr ? usageArr.map((m) => {
-                if (m[1].time < 60 * 1000 && usageArr.length > 20) return null;
-                if (m[1].url.includes(limURL)) return null;
-                const e = m[1];
+                if (m.time < 60 * 1000 && usageArr.length > 20) return null;
+                if (m.url.includes(limURL)) return null;
+                const e = m;
                 const name = e.url.length > 40 ? e.url.slice(0, 40) + "..." : e.url;
                 return (
                     <div key={e.url} style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
