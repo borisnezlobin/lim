@@ -26,8 +26,8 @@ function UsagePage() {
                 const name = e.url.length > 40 ? e.url.slice(0, 40) + "..." : e.url;
                 return (
                     <div key={e.url} style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                            {e.icon ? <img src={e.icon} style={{ width: 16, height: 16 }} /> : <div style={{ width: 16, height: 16 }}></div>}
+                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                            {e.icon ? <img src={e.icon} style={{ width: 16, height: 16, backgroundColor: "white", borderRadius: 1024, padding: 8 }} /> : <div style={{ width: 16, height: 16 }}></div>}
                             <p>{name}</p>
                         </div>
                         <p>{formatMS(e.time)}</p>

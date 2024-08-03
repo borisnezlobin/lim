@@ -22,6 +22,7 @@ let hasBrowserBeenAwake = true;
 let lastIntervalTime = Date.now();
 let currentFavicon = "";
 let currentTabId = null;
+let currentRawURL = "";
 
 // basically if we run a quick little interval (under 15s), we can keep the background script running
 // this is a hacky way to keep the background script running
@@ -32,14 +33,14 @@ setInterval(async () => {
     // while we're here, we might as well update the current tab's time
     const tab = await browser.tabs.query({ active: true, currentWindow: true });
     console.log(tab[0]);
-    handleNewUrl(getURL(tab[0].url), tab[0].favIconUrl, tab[0].id);
+    handleNewUrl(getURL(tab[0].url), tab[0].url, tab[0].favIconUrl, tab[0].id);
 }, 10000);
 
 
 browser.windows.onFocusChanged.addListener((abc) => {
     console.log("window focus changed", abc);
     // if we switch windows from the browser, we need to add the time spent on the previous tab
-    if (abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentFavicon, currentTabId);
+    if (abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentRawURL, currentFavicon, currentTabId);
     // iffy — browser window could be a sidebar or something. might as well count that as "active", though
     currentWindowID = abc;
 });
@@ -60,12 +61,13 @@ setInterval(() => {
     lastIntervalTime = Date.now();
 }, time);
 
-const handleNewUrl = async (url, favicon, tabId) => {
+const handleNewUrl = async (url, rawUrl, favicon, tabId) => {
     // don't update current tab if the browser window is not focused
     if (
         !hasBrowserBeenAwake ||
         currentWindowID == browser.windows.WINDOW_ID_NONE ||
-        (currentTab === null || currentTab === undefined || currentTab === "")
+        (currentTab === null || currentTab === undefined || currentTab === "") ||
+        (currentRawURL === null || currentRawURL === undefined || currentRawURL === "")
     ) {
         console.log(
             "not updating time because browserawake is",
@@ -78,6 +80,7 @@ const handleNewUrl = async (url, favicon, tabId) => {
         currentTab = url;
         currentFavicon = favicon;
         currentTabId = tabId;
+        currentRawURL = rawUrl;
         startTime = Date.now();
         return;
     }
@@ -91,48 +94,83 @@ const handleNewUrl = async (url, favicon, tabId) => {
     const lastDateUpdated = new Date(lastDateUpdatedStorage.lastDateUpdated).getDate();
 
     const result = await browser.storage.local.get("usage");
+    const rawResult = await browser.storage.local.get("rawUsage");
 
     // if the date has changed, reset the time spent on all tabs
     // awaits are necessary here, I think
     var totalTime = 0;
-    if (result && new Date().getDate() != lastDateUpdated) {
+    let newUsage = {};
+    let newRawUsage = {};
+    if (!result || new Date().getDate() != lastDateUpdated) {
         // clear usage from storage
-        await browser.storage.local.set({
-            usage: {
-                [currentTab]: {
-                    time: timeSpent,
-                    icon: currentFavicon,
-                    url: currentTab,
-                },
+        newUsage = {
+            [currentTab]: {
+                time: timeSpent,
+                icon: currentFavicon,
+                url: currentTab,
             },
-            lastDateUpdated: Date.now(),
-        });
+        };
+            // rawUsage: {
+            //     ...rawResult.rawUsage,
+            //     [currentRawURL]: {
+            //         time: timeSpent,
+            //         icon: currentFavicon,
+            //         url: currentRawURL,
+            //     },
+            // },
+            // lastDateUpdated: Date.now(),
     } else if (!result || !result.usage || !result.usage[currentTab]) {
-        await browser.storage.local.set({
-            usage: {
-                ...result.usage,
-                [currentTab]: {
-                    time: timeSpent,
-                    icon: currentFavicon,
-                    url: currentTab,
-                },
+        newUsage = {
+            ...result.usage,
+            [currentTab]: {
+                time: timeSpent,
+                icon: currentFavicon,
+                url: currentTab,
             },
-            lastDateUpdated: Date.now(),
-        });
+        };
     } else {
-        await browser.storage.local.set({
-            usage: {
-                ...result.usage,
-                [currentTab]: {
-                    time: result.usage[currentTab].time + timeSpent,
-                    icon: currentFavicon,
-                    url: currentTab,
-                },
+        newUsage = {
+            ...result.usage,
+            [currentTab]: {
+                time: result.usage[currentTab].time + timeSpent,
+                icon: currentFavicon,
+                url: currentTab,
             },
-            lastDateUpdated: Date.now(),
-        });
-        totalTime = result.usage[currentTab].time;
+        };
     }
+
+    if (!rawResult || new Date().getDate() != lastDateUpdated) {
+        // clear usage from storage
+        newRawUsage = {
+            [currentRawURL]: {
+                time: timeSpent,
+                url: currentRawURL,
+            },
+        };
+    } else if (!rawResult || !rawResult.rawUsage || !rawResult.rawUsage[currentRawURL]) {
+        newRawUsage = {
+            ...rawResult.rawUsage,
+            [currentRawURL]: {
+                time: timeSpent,
+                url: currentRawURL,
+            },
+        };
+    } else {
+        newRawUsage = {
+            ...rawResult.rawUsage,
+            [currentRawURL]: {
+                time: rawResult.rawUsage[currentRawURL].time + timeSpent,
+                url: currentRawURL,
+            },
+        };
+        totalTime = rawResult.rawUsage[currentRawURL].time;
+    }
+
+    await browser.storage.local.set({
+        usage: newUsage,
+        rawUsage: newRawUsage,
+        lastDateUpdated: Date.now(),
+    });
 
     totalTime += timeSpent;
 
@@ -142,7 +180,7 @@ const handleNewUrl = async (url, favicon, tabId) => {
         for (const limit of limits.limits) {
             let usedToday = limit.usedToday;
             if (new Date().getDate() !== lastDateUpdated) usedToday = 0;
-            if (currentTab.match(limit.urlRegex)) {
+            if (currentRawURL.match(limit.urlRegex)) {
                 console.log("limit matched", limit);
                 usedToday += timeSpent;
             }
@@ -173,18 +211,19 @@ const handleNewUrl = async (url, favicon, tabId) => {
     currentTab = url;
     currentFavicon = favicon;
     currentTabId = tabId;
+    currentRawURL = rawUrl;
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
     console.log("tab activated:", activeInfo);
     let tab = await browser.tabs.get(activeInfo.tabId);
-    handleNewUrl(getURL(tab.url), tab.favIconUrl, tab.id);
+    handleNewUrl(getURL(tab.url), tab.url, tab.favIconUrl, tab.id);
 });
 
 browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
     if (changeInfo.url) {
         console.log("tab updated:", tabInfo.url);
-        handleNewUrl(getURL(tabInfo.url), tabInfo.favIconUrl, tabInfo.id);
+        handleNewUrl(getURL(tabInfo.url), tab.url, tabInfo.favIconUrl, tabInfo.id);
     }
 });
 
