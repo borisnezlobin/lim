@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RegEx and How to Use It</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
+
+        body {
+            font-family: "Rethink Sans", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+            line-height: 1.5;
+            font-weight: 400;
+
+            color-scheme: light dark;
+            color: rgba(255, 255, 255, 0.87);
+
+            font-synthesis: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #2a2a2a;
+            width: 100vw;
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin: 0;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        a {
+            font-weight: 500;
+            color: #646cff;
+            text-decoration: inherit;
+        }
+
+        a:hover {
+            color: #535bf2;
+        }
+
+        h1 {
+            font-size: 3.2em;
+            line-height: 1.1;
+        }
+
+        button {
+            border-radius: 8px;
+            border: 1px solid transparent;
+            padding: 0.6em 1.2em;
+            font-size: 1em;
+            font-weight: 500;
+            font-family: inherit;
+            background-color: #1a1a1a;
+            cursor: pointer;
+            transition: border-color 0.25s;
+            margin: 1rem 0rem;
+        }
+
+        button.icon {
+            justify-content: center;
+            align-items: center;
+            display: flex;
+            margin-right: 0.5em;
+            border-radius: 50%;
+            padding: 0.5em;
+        }
+
+        button:hover {
+            border-color: #646cff;
+        }
+
+        button:focus,
+        button:focus-visible {
+            outline: 4px auto -webkit-focus-ring-color;
+        }
+
+        .container {
+            max-width: 48rem;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 2rem;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            border: 1px solid #1a1a1a;
+            background-color: #3a3a3a;
+            color: #ffffff;
+            padding: 0.2em 0.4em;
+            border-radius: 4px;
+        }
+
+        pre {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 1em;
+            text-align: center;
+
+            code {
+                font-family: 'Courier New', Courier, monospace;
+                font-size: 1em;
+                background-color: #1a1a1a;
+                color: #ffffff;
+                padding: 0;
+                border-radius: 0;
+                border: none;
+            }
+        }
+
+        input {
+            border-radius: 8px;
+            border: 1px solid #1a1a1a;
+            padding: 0.6em 1.2em;
+            font-size: 1em;
+            font-weight: 500;
+            font-family: inherit;
+            background-color: #1a1a1a;
+            color: #ffffff;
+            margin: 1rem 0rem;
+        }
+
+        input:focus,
+        input:focus-visible {
+            outline: 4px auto -webkit-focus-ring-color;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                color: #213547;
+                background-color: #ffffff;
+            }
+
+            a:hover {
+                color: #747bff;
+            }
+
+            button {
+                background-color: #f9f9f9;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Lim RegEx and How To Block Websites</h1>
+        <article>
+            <h2>Simple Mode</h2>
+            <p>
+                Simple Mode is a way to create limits without having to learn RegEx. You can use Simple Mode to block
+                websites by typing in the name of the website.
+                For example, if you want to block Facebook, you can just type in "facebook.com" and Lim will block it
+                for you. You can also use Simple Mode to block
+                subdomains, like "www.facebook.com". Simple Mode is a great way to get started with Lim, and you can
+                always switch to RegEx if you want to create more
+                advanced limits.
+            </p>
+
+            <h2>Common Limits</h2>
+            <p>
+                Here are some common limits that you can use to block websites. You can use these limits in Simple Mode,
+                or you can use them as a starting point for
+                creating your own RegEx limits. To use these limits, just copy and paste them into the "Limit" field
+                when you're creating a new limit.
+            </p>
+            <h3>
+                Social media websites:
+            </h3>
+            <p>Each of these blocks a common social media website. If you want to block multiple in one limit, separate
+                each one with a <code>|</code> &mdash; <b>do not</b> add a space! Lim will treat the whitespace as part
+                of the URL, which won't block what you expect it to!</p>
+            <p>Here's an example of a limit that blocks X (and Twitter) and Instagram:</p>
+            <pre><code>:\/\/x\.|:\/\/twitter\.|:\/\/instagram\.</code></pre>
+            <p>Here's an explanation of what this does:
+            <ul>
+                <li><code>://x.</code> blocks any website that has <code>://x.</code> in the URL. This won't block
+                    something like <code>https://developer.x.com</code>, but it will block <code>https://x.com</code>
+                    and <code>http://x.co.uk</code>. Be careful! Notice the <code>.</code> at the end &mdash; this is
+                    important to not block websites like <code>https://xawebsiteireallyneed.com</code>!</li>
+                <li><code>://twitter.</code> blocks any website that has <code>://twitter.</code> in the URL.</li>
+                <li><code>://instagram.</code> blocks any website that has <code>://instagram.</code> in the URL.</li>
+            </ul>
+            See all of the <code>\</code>? Those are important to escape some characters in RegEx. Escape the following
+            characters with a <code>\</code>:
+            <ul>
+                <li><code>.</code> &mdash; this is a special character in RegEx, so you need to escape it with a
+                    <code>\</code> to match a literal <code>.</code>.</li>
+                <li><code>|</code> &mdash; this is a special character in RegEx, so you need to escape it with a
+                    <code>\</code> to match a literal <code>|</code>.</li>
+                <li><code>?</code> &mdash; this is a special character in RegEx, so you need to escape it with a
+                    <code>\</code> to match a literal <code>?</code>.</li>
+                <li><code>*</code> &mdash; this is a special character in RegEx, so you need to escape it with a
+                    <code>\</code> to match a literal <code>*</code>.</li>
+                <li><code>+</code> &mdash; this is a special character in RegEx, so you need to escape it with a
+                    <code>\</code> to match a literal <code>+</code>.</li>
+                <li><code>(</code> and <code>)</code> &mdash; these are special characters in RegEx, so you need to
+                    escape them with a <code>\</code> to match a literal <code>(</code> or <code>)</code>.</li>
+                <li><code>[</code> and <code>]</code> &mdash; these are special characters in RegEx, so you need to
+                    escape them with a <code>\</code> to match a literal <code>[</code> or <code>]</code>.</li>
+                <li><code>{</code> and <code>}</code> &mdash; these are special characters in RegEx, so you need to
+                    escape them with a <code>\</code> to match a literal <code>{</code> or <code>}</code>.</li>
+                <li><code>\</code> &mdash; this is a special character in RegEx, so you need to escape it with a
+                    <code>\</code> to match a literal <code>\</code>.</li>
+            </ul>
+            Phew! That's a lot.
+            </p>
+            <h2>RegEx Resources</h2>
+            <p>
+                Want to learn more? Here are some resources to help you get started with RegEx:
+                <ul>
+                    <li>
+                        <a href="https://docs.icewarp.com/Content/IceWarp-Server/Administration-Nodes/Domains%20&%20Accounts/Simple%20RegEx%20Tutorial.htm">IceWarp's
+                        tutorial</a>
+                    </li>
+                    <li>
+                        <a href="https://en.wikipedia.org/wiki/Regular_expression">Wikipedia</a>
+                    </li>
+                    <li>
+                        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions">MDN</a> (which is more focused on RegEx in JavaScript)
+                    </li>
+                    <li>
+                        <a href="https://regex101.com/">Regex101</a> (a tool to test your RegEx patterns)
+                    </li>
+                </ul>
+            </p>
+        </article>
+    </div>
+</body>
+
+</html>

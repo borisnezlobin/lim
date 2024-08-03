@@ -192,7 +192,7 @@ browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
 browser.runtime.onMessage.addListener(async (message, sender) => {
     if (message.type === "close-tab") {
         const tab = await browser.tabs.query({ active: true, currentWindow: true });
-        chrome.tabs.create({ url: "./scripts/blocked_page.html?name=" + message.name });
+        chrome.tabs.create({ url: "./html/blocked_page.html" });
         chrome.tabs.remove(tab[0].id);
     }
 });
