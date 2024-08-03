@@ -211,16 +211,6 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
     currentFavicon = favicon;
     currentTabId = tabId;
     currentRawURL = rawUrl;
-
-    try {
-        browser.tabs.sendMessage(
-            currentTabId,
-            {
-                url: currentRawURL,
-                type: "time-update",
-            }
-        );
-    } catch (e) { } // w/e
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
@@ -241,6 +231,6 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     if (message.type === "close-tab") {
         const tab = await browser.tabs.query({ active: true, currentWindow: true });
         chrome.tabs.create({ url: "./html/blocked_page.html" });
-        // chrome.tabs.remove(tab[0].id);
+        chrome.tabs.remove(tab[0].id);
     }
 });
