@@ -8,6 +8,7 @@ type LimitControllerContextType = {
     isEmpty: () => boolean;
     deleteLimit: (id: number) => void;
     editLimit: (id: number, name: string, regex: string, time: number) => void;
+    cancelDeletion: (id: number) => void;
 }
 
 const LimitControllerContext = createContext<LimitControllerContextType>({
@@ -15,7 +16,8 @@ const LimitControllerContext = createContext<LimitControllerContextType>({
     addLimit: () => {},
     isEmpty: () => true,
     deleteLimit: () => {},
-    editLimit: () => {}
+    editLimit: () => {},
+    cancelDeletion: () => {}
 });
 
 const LimitControllerProvider = ({ children }: { children: React.ReactNode }) => {
@@ -58,6 +60,12 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
         });
     }
 
+    function cancelDeletion(id: number){
+        limitController.cancelDeletion(id).then((limits) => {
+            setLimits(limits);
+        });
+    }
+
     function editLimit(id: number, name: string, regex: string, time: number){
         limitController.edit(id, name, regex, time, rawUsage ?? []).then((limits) => {
             setLimits(limits);
@@ -74,7 +82,8 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
             addLimit,
             isEmpty,
             deleteLimit,
-            editLimit
+            editLimit,
+            cancelDeletion
         }}>
             {children}
         </LimitControllerContext.Provider>

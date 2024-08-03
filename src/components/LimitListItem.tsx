@@ -12,7 +12,7 @@ const MINUTES = 60 * 1000;
  */
 function LimitListItem({ limit }: { limit: Limit }) {
     const nav = useNavigate();
-    const { deleteLimit } = useContext(LimitControllerContext);
+    const { deleteLimit, cancelDeletion } = useContext(LimitControllerContext);
 
     const name = limit.name.length > 20 ? limit.name.slice(0, 20) + "..." : limit.name;
 
@@ -54,7 +54,7 @@ function LimitListItem({ limit }: { limit: Limit }) {
                             Will be deleted tomorrow.
                         </p>
                     </p>
-                    <button className={styles.cancel}>
+                    <button className={styles.cancel} onClick={() => cancelDeletion(limit.id)}>
                         Cancel Deletion
                     </button>
                 </div>

@@ -69,6 +69,18 @@ class LimitController {
         return this.limits;
     }
 
+    public async cancelDeletion(id: number) {
+        this.limits = this.limits.map((limit) => {
+            if(limit.id === id) {
+                limit.delayedDelete = null;
+            }
+            return limit;
+        });
+        await this.write();
+
+        return this.limits;
+    }
+
     public async edit(id: number, name: string, regex: string, time: number, usageArr: RawUsageType[]) {
         this.limits = this.limits.map((limit) => {
             if(limit.id === id) {
