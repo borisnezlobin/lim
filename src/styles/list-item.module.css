@@ -19,6 +19,7 @@ p {
     margin-bottom: 8px;
     background-color: #2a2a2a;
     border: 1px solid #3a3a3a;
+    position: relative;
 }
 
 .iconButton {
@@ -44,11 +45,36 @@ p {
     transform: translateY(-2px);
 }
 
-.overtime, .overtime *, .overtime .pill {
+.overtime, .overtime *:not(.queued), .overtime .pill {
     background-color: #360b0b;
 }
 
 .overtime {
     border: 1px solid;
     border-color: #7a0204;
+}
+
+.queued {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+    color: #fff;
+    border-radius: 8px;
+}
+
+.queued button.cancel {
+    background-color: #c1c1c1;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+    transition: transform 0.15s;
 }

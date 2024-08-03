@@ -15,6 +15,10 @@ type Limit = {
      * (note: "after time" is actually one minute before time is up, lol)
     */
     allowOneMoreMinute: boolean;
+    /**
+     * specifies the date at which this limit was queued for deletion, null if it is not queued
+     */
+    delayedDelete: number | null;
 }
 
 class LimitController {
@@ -53,7 +57,13 @@ class LimitController {
     }
 
     public async remove(id: number) {
-        this.limits = this.limits.filter((limit) => limit.id !== id);
+        // this.limits = this.limits.filter((limit) => limit.id !== id);
+        this.limits = this.limits.map((limit) => {
+            if(limit.id === id) {
+                limit.delayedDelete = new Date().getDate();
+            }
+            return limit;
+        });
         await this.write();
 
         return this.limits;

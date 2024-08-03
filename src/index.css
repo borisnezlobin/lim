@@ -127,3 +127,7 @@ input:focus-visible {
         background-color: #f9f9f9;
     }
 }
+
+.muted {
+    color: rgba(255, 255, 255, 0.6);
+}

@@ -21,9 +21,13 @@ function LimitListItem({ limit }: { limit: Limit }) {
     }
 
     const isOvertime = limit.usedToday > limit.perDay * MINUTES;
+    const queued = limit.delayedDelete !== null;
 
     return (
-        <div key={limit.id} className={`${styles.container} ${isOvertime ? styles.overtime : ""}`}>
+        <div
+            key={limit.id}
+            className={`${styles.container} ${isOvertime ? styles.overtime : ""}`}
+        >
             <div>
                 <h2>{name}</h2>
                 <code>{limit.urlRegex.length > 20 ? limit.urlRegex.slice(0, 20) + "..." : limit.urlRegex}</code>
@@ -42,6 +46,19 @@ function LimitListItem({ limit }: { limit: Limit }) {
                     <TrashSimple color='#a40a0b' size={24} />
                 </button>
             </div>
+            {queued &&
+                <div className={styles.queued}>
+                    <p style={{ padding: "8px 20px", borderRadius: 16 }}>
+                        Queued for deletion.
+                        <p className="muted">
+                            Will be deleted tomorrow.
+                        </p>
+                    </p>
+                    <button className={styles.cancel}>
+                        Cancel Deletion
+                    </button>
+                </div>
+            }
         </div>
     )
 }

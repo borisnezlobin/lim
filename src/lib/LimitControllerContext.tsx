@@ -38,7 +38,8 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
             urlRegex: regex,
             perDay: time,
             allowOneMoreMinute: false,
-            usedToday: 0
+            usedToday: 0,
+            delayedDelete: null
         }
 
         for(const usage of rawUsage ? rawUsage : []){
