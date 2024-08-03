@@ -33,14 +33,14 @@ setInterval(async () => {
     // while we're here, we might as well update the current tab's time
     const tab = await browser.tabs.query({ active: true, currentWindow: true });
     console.log(tab[0]);
-    handleNewUrl(getURL(tab[0].url), tab[0].url, tab[0].favIconUrl, tab[0].id);
+    handleNewUrl(getURL(tab[0].url), tab[0].url, tab[0].favIconUrl, tab[0].id, false);
 }, 10000);
 
 
 browser.windows.onFocusChanged.addListener((abc) => {
     console.log("window focus changed", abc);
     // if we switch windows from the browser, we need to add the time spent on the previous tab
-    if (abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentRawURL, currentFavicon, currentTabId);
+    if (abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentRawURL, currentFavicon, currentTabId, false);
     // iffy — browser window could be a sidebar or something. might as well count that as "active", though
     currentWindowID = abc;
 });
@@ -61,7 +61,7 @@ setInterval(() => {
     lastIntervalTime = Date.now();
 }, time);
 
-const handleNewUrl = async (url, rawUrl, favicon, tabId) => {
+const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
     // don't update current tab if the browser window is not focused
     if (
         !hasBrowserBeenAwake ||
@@ -96,6 +96,8 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId) => {
     const result = await browser.storage.local.get("usage");
     const rawResult = await browser.storage.local.get("rawUsage");
 
+    let deltaPickup = isNewPickup ? 1 : 0;
+
     // if the date has changed, reset the time spent on all tabs
     // awaits are necessary here, I think
     var totalTime = 0;
@@ -107,23 +109,16 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId) => {
             [currentTab]: {
                 time: timeSpent,
                 icon: currentFavicon,
+                pickups: deltaPickup,
                 url: currentTab,
             },
         };
-            // rawUsage: {
-            //     ...rawResult.rawUsage,
-            //     [currentRawURL]: {
-            //         time: timeSpent,
-            //         icon: currentFavicon,
-            //         url: currentRawURL,
-            //     },
-            // },
-            // lastDateUpdated: Date.now(),
     } else if (!result || !result.usage || !result.usage[currentTab]) {
         newUsage = {
             ...result.usage,
             [currentTab]: {
                 time: timeSpent,
+                pickups: deltaPickup,
                 icon: currentFavicon,
                 url: currentTab,
             },
@@ -134,6 +129,7 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId) => {
             [currentTab]: {
                 time: result.usage[currentTab].time + timeSpent,
                 icon: currentFavicon,
+                pickups: result.usage[currentTab].pickups + deltaPickup,
                 url: currentTab,
             },
         };
@@ -217,13 +213,13 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId) => {
 browser.tabs.onActivated.addListener(async function (activeInfo) {
     console.log("tab activated:", activeInfo);
     let tab = await browser.tabs.get(activeInfo.tabId);
-    handleNewUrl(getURL(tab.url), tab.url, tab.favIconUrl, tab.id);
+    handleNewUrl(getURL(tab.url), tab.url, tab.favIconUrl, tab.id, true);
 });
 
 browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
     if (changeInfo.url) {
         console.log("tab updated:", tabInfo.url);
-        handleNewUrl(getURL(tabInfo.url), tab.url, tabInfo.favIconUrl, tabInfo.id);
+        handleNewUrl(getURL(tabInfo.url), tab.url, tabInfo.favIconUrl, tabInfo.id, false);
     }
 });
 

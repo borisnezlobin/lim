@@ -2,6 +2,7 @@ import { createContext, useEffect, useState } from "react";
 
 export type UsageType = RawUsageType & {
     icon: string;
+    pickups: number;
 }
 
 export type RawUsageType = {

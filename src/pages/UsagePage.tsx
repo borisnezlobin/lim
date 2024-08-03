@@ -25,12 +25,25 @@ function UsagePage() {
                 const e = m;
                 const name = e.url.length > 40 ? e.url.slice(0, 40) + "..." : e.url;
                 return (
-                    <div key={e.url} style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                            {e.icon ? <img src={e.icon} style={{ width: 16, height: 16, backgroundColor: "white", borderRadius: 1024, padding: 8 }} /> : <div style={{ width: 16, height: 16 }}></div>}
-                            <p>{name}</p>
+                    <div key={e.url} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.75rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            {e.icon ?
+                                <img src={e.icon} style={{ width: 16, height: 16, backgroundColor: "white", borderRadius: 1024, padding: 4 }} />
+                            :
+                                <div style={{ width: 16, height: 16 }}></div>
+                            }
+                            <div>
+                                <p>
+                                    {name}
+                                </p>
+                                <p style={{ color: "gray", fontSize: "0.9rem" }}>
+                                    {e.pickups} pickup{e.pickups === 1 ? "" : "s"}
+                                </p>
+                            </div>
                         </div>
-                        <p>{formatMS(e.time)}</p>
+                        <code style={{ margin: 0, padding: ".5em .5em" }}>
+                            {formatMS(e.time)}
+                        </code>
                     </div>
                 )
             }) : <p>Loading...</p>}
