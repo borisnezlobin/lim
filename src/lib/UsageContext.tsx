@@ -1,6 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 
-type UsageType = {
+export type UsageType = {
     time: number,
     icon: string;
     url: string;

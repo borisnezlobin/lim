@@ -42,7 +42,7 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
         }
 
         for(const usage of usageArr){
-            if(usage[1].url.includes(regex)){
+            if(usage[1].url.match(regex)){
                 limit.usedToday += usage[1].time;
             }
         }
@@ -58,7 +58,7 @@ const LimitControllerProvider = ({ children }: { children: React.ReactNode }) =>
     }
 
     function editLimit(id: number, name: string, regex: string, time: number){
-        limitController.edit(id, name, regex, time).then((limits) => {
+        limitController.edit(id, name, regex, time, usageArr).then((limits) => {
             setLimits(limits);
         });
     }

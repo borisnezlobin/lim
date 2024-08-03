@@ -1,3 +1,5 @@
+import { UsageType } from "./UsageContext";
+
 type Limit = {
     /** unique id for this limit, idek if it's necessary */
     id: number;
@@ -57,12 +59,19 @@ class LimitController {
         return this.limits;
     }
 
-    public async edit(id: number, name: string, regex: string, time: number) {
+    public async edit(id: number, name: string, regex: string, time: number, usageArr: [string, UsageType][]) {
         this.limits = this.limits.map((limit) => {
             if(limit.id === id) {
                 limit.name = name;
                 limit.urlRegex = regex;
                 limit.perDay = time;
+                limit.usedToday = 0;
+
+                for(const usage of usageArr){
+                    if(usage[1].url.match(regex)){
+                        limit.usedToday += usage[1].time;
+                    }
+                }
             }
             return limit;
         });
