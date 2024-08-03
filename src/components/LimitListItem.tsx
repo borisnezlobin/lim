@@ -20,7 +20,7 @@ function LimitListItem({ limit }: { limit: Limit }) {
         nav(`/edit`, { state: { limit } });
     }
 
-    const isOvertime = limit.usedToday > limit.perDay * MINUTES;
+    const isOvertime = limit.usedToday >= limit.perDay * MINUTES;
     const queued = limit.delayedDelete !== null;
 
     return (

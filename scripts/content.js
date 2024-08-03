@@ -54,7 +54,9 @@ const blockTabIfOvertime = async () => {
         }
     });
 
-    const currentTab = new URL(window.location.href).origin;
+    log("getting limits, using cached");
+
+    const currentTab = window.location.href;
     // const timeSpent = await getTimeSpentOnCurrentTab();
 
     for (const limit of cachedLimits) {
@@ -62,10 +64,10 @@ const blockTabIfOvertime = async () => {
         // because the content script's globals are shared by all content scripts (which is running in every tab)
         if (limitMatches(currentTab, limit)) {
             log(currentTab, "matches", limit, "and has spent", limit.usedToday, "ms today");
-            if (limit.usedToday > limit.perDay * 60 * 1000) {
+            if (limit.usedToday >= limit.perDay * 60 * 1000) {
                 blockTab(limit.name);
                 log("Blocked", currentTab, "because of limit", limit);
-                break; // no need to check the other limits, duh
+                break;
             }
         }
     }
@@ -73,14 +75,16 @@ const blockTabIfOvertime = async () => {
 
 browser.runtime.onMessage.addListener((message) => {
     log("received message", message);
+    log(window.location.href);
     if (message.type === "time-update") {
-        if (message.url == getURL(window.location.href)) {
+        log(message.url + " == " + window.location.href);
+        if (message.url == window.location.href) {
+            log("checking if this page needs blocking");
             blockTabIfOvertime();
         }
     }
 });
 
-log("content script loaded");
 startup();
 
 

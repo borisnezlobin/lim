@@ -192,11 +192,11 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
 
     try {
         // send message to all content scripts (and popup) that we have updated the time spent on the current tab
-        console.log("sending message to content script on tab", tabId);
+        console.log("sending message to content script on tab", tabId, "with url", currentRawURL);
         browser.tabs.sendMessage(
             currentTabId,
             {
-                url: currentTab,
+                url: currentRawURL,
                 type: "time-update",
                 totalTime: totalTime,
             }
@@ -211,6 +211,16 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
     currentFavicon = favicon;
     currentTabId = tabId;
     currentRawURL = rawUrl;
+
+    try {
+        browser.tabs.sendMessage(
+            currentTabId,
+            {
+                url: currentRawURL,
+                type: "time-update",
+            }
+        );
+    } catch (e) { } // w/e
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
@@ -222,7 +232,7 @@ browser.tabs.onActivated.addListener(async function (activeInfo) {
 browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
     if (changeInfo.url) {
         console.log("tab updated:", tabInfo.url);
-        handleNewUrl(getURL(tabInfo.url), tab.url, tabInfo.favIconUrl, tabInfo.id, false);
+        handleNewUrl(getURL(tabInfo.url), tabInfo.url, tabInfo.favIconUrl, tabInfo.id, false);
     }
 });
 
@@ -231,6 +241,6 @@ browser.runtime.onMessage.addListener(async (message, sender) => {
     if (message.type === "close-tab") {
         const tab = await browser.tabs.query({ active: true, currentWindow: true });
         chrome.tabs.create({ url: "./html/blocked_page.html" });
-        chrome.tabs.remove(tab[0].id);
+        // chrome.tabs.remove(tab[0].id);
     }
 });

@@ -30,7 +30,7 @@ function UsagePage() {
                             {e.icon ?
                                 <img src={e.icon} style={{ width: 16, height: 16, backgroundColor: "white", borderRadius: 1024, padding: 4 }} />
                             :
-                                <div style={{ width: 16, height: 16 }}></div>
+                                <div style={{ width: 24, height: 24 }}></div>
                             }
                             <div>
                                 <p>
