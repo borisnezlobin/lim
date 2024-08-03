@@ -10,6 +10,8 @@ import { UsageContext } from "../lib/UsageContext";
 function UsagePage() {
     const nav = useNavigate();
     const { usageArr } = useContext(UsageContext);
+    // @ts-expect-error should work
+    const limURL = browser.runtime.getURL("html/regexlimits.html").replaceAll("html/regexlimits.html", "").match(/[a-z0-9]{6,9}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}/g)[0];
 
     return (
         <div style={{ width: "100%" }}>
@@ -18,7 +20,8 @@ function UsagePage() {
                 Back
             </button>
             {usageArr ? usageArr.map((m) => {
-                if(m[1].time < 60 * 1000) return null;
+                if (m[1].time < 60 * 1000 && usageArr.length > 20) return null;
+                if (m[1].url.includes(limURL)) return null;
                 const e = m[1];
                 const name = e.url.length > 40 ? e.url.slice(0, 40) + "..." : e.url;
                 return (
