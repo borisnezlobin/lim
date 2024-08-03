@@ -16,6 +16,7 @@ function AddOrEditLimitPage() {
     const nav = useNavigate();
 
     const submit = () => {
+        // todo: validate input (IMPORTANT (ish))
         if (isAdding) {
             addLimit(name, website, parseFloat(time));
         } else {
@@ -24,26 +25,19 @@ function AddOrEditLimitPage() {
         nav("/");
     }
 
+    // @ts-expect-error should work
+    const url = browser.runtime.getURL("html/regexlimits.html");
+
     return (
         <div>
             <h1>{isAdding ? "Create" : "Edit"} Limit</h1>
             <form style={{ width: "100%" }}>
-                <input
-                    placeholder='Name'
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                />
-                <input
-                    placeholder='Website domain (e.g. instagram.com)'
-                    value={website}
-                    onChange={(e) => setWebsite(e.target.value)}
-                />
-                <input
-                    placeholder="Time limit (in minutes)"
-                    value={time}
-                    type='number'
-                    onChange={(e) => setTime(e.target.value)}
-                />
+                <InputWithTitle placeholder="Ex: Social Media" title='Name' value={name} onChange={setName} />
+                <InputWithTitle placeholder='Ex: twitter\.com' title='Website RegEx' value={website} onChange={setWebsite} />
+                <p>
+                    Don't know what this means? Check out <a href={url} target="_blank" rel="noopener noreferrer">our guide</a>.
+                </p>
+                <InputWithTitle placeholder="Ex: 20" title='Time per day' value={time} onChange={setTime} />
             </form>
 
             <button onClick={submit} style={{
@@ -54,6 +48,21 @@ function AddOrEditLimitPage() {
             <button onClick={() => nav("/")}>
                 Cancel
             </button>
+        </div>
+    )
+}
+
+const InputWithTitle = ({ title, placeholder, value, onChange }: { title: string, value: string, placeholder?: string, onChange: (value: string) => void }) => {
+    return (
+        <div>
+            <p style={{ fontWeight: 'bold', marginTop: '1rem', marginBottom: 0 }}>
+                {title}
+            </p>
+            <input
+                value={value}
+                placeholder={placeholder ?? title}
+                onChange={(e) => onChange(e.target.value)}
+            />
         </div>
     )
 }
