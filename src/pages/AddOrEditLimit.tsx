@@ -2,8 +2,8 @@ import { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LimitControllerContext } from '../lib/LimitControllerContext';
 
-export const SIMPLE_MODE_PREFIX = "^[a-z]:\\/\\/[a-z\\.]*[";
-export const SIMPLE_MODE_SUFFIX = "]\\.[a-z\\.]{2,}\\/";
+export const SIMPLE_MODE_PREFIX = "^[a-z]*:\\/\\/[a-z.]*[";
+export const SIMPLE_MODE_SUFFIX = "]\\.[a-z.]{2,}";
 
 /**
  * Page that has a limit-creation form (name of website, some options, and time per day)
@@ -15,7 +15,7 @@ function AddOrEditLimitPage() {
     const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex.replaceAll(SIMPLE_MODE_PREFIX, "").replaceAll(SIMPLE_MODE_SUFFIX, ""));
     const [name, setName] = useState<string>(isAdding ? "" : location.state.limit.name);
     const [time, setTime] = useState<string>(isAdding ? "" : location.state.limit.perDay.toString());
-    const [simpleMode, setSimpleMode] = useState<boolean>(false);
+    const [simpleMode, setSimpleMode] = useState<boolean>(isAdding ? false : location.state.limit.urlRegex.startsWith(SIMPLE_MODE_PREFIX));
     const { addLimit, editLimit } = useContext(LimitControllerContext);
     const nav = useNavigate();
 
