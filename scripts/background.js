@@ -184,6 +184,7 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
         }
 
         limits.limits = limits.limits.filter((limit) => !(limit.delayedDelete && limit.delayedDelete != new Date().getDate()));
+        // limits.limits = [];
 
         await browser.storage.local.set({
             limits: limits.limits,

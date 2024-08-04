@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Welcome to Lim!</title>
+    <title>Simple Mode / Lim</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 
@@ -144,44 +144,53 @@
                 background-color: #f9f9f9;
             }
         }
+
+        .muted {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Welcome to Lim!t</h1>
-        <p>Lim will vigilantly lock down websites you've set limits for. You can start simply by just typing in the name
-            of websites to set limits.
-            Or, take a more advanced approach by matching RegEx &mdash; the choice is yours!</p>
-        <p>
-            Lim uses
-            <a href="https://en.wikipedia.org/wiki/Regular_expression">RegEx (Regular Expressions)</a>
-            to know which websites to block. RegEx is a powerful tool! You can use it to match patterns in text, and Lim
-            uses it to match patterns in URLs.
-            This means that you can block a whole range of websites with just one RegEx pattern. Or, you can be more
-            specific and block just one website. If
-            you already know RegEx, you can start typing in your patterns right away. If you don't, don't worry! You can
-            learn more about RegEx at:
-            <ul>
-                <li>
-                    <a href="https://docs.icewarp.com/Content/IceWarp-Server/Administration-Nodes/Domains%20&%20Accounts/Simple%20RegEx%20Tutorial.htm">IceWarp's
-                    tutorial</a>
-                </li>
-                <li>
-                    <a href="https://en.wikipedia.org/wiki/Regular_expression">Wikipedia</a>
-                </li>
-                <li>
-                    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions">MDN</a> (which is more focused on RegEx in JavaScript)
-                </li>
-                <li>
-                    <a href="https://regex101.com/">Regex101</a> (a tool to test your RegEx patterns)
-                </li>
-            </ul>
-            Or, if you prefer an easier approach, Lim has some common RegEx patterns made for you. Check out <a href="regexlimits.html">Lim's RegEx Limits</a> to see some examples.
-            Also, you can use Lim's Simple Mode when
-            you're creating limits &mdash; this will give you a very simple way to block websites without having to
-            learn RegEx. Welcome to Lim!
-        </p>
+        <article>
+            <h2>Simple Mode</h2>
+            <p>
+                Simple Mode is a way to create limits without having to learn RegEx. You can use Simple Mode to block
+                websites by typing in the name of the website.
+                For example, if you want to block Facebook, you can just type in "facebook.com" and Lim will block it
+                for you. You can also use Simple Mode to block
+                subdomains, like "www.facebook.com". Simple Mode is a great way to get started with Lim, and you can
+                always switch to RegEx if you want to create more
+                advanced limits.
+            </p>
+
+            <h3>Overview</h3>
+            <p>
+                To use Simple Mode, just type in the name of the website for the <code>Website Name</code> field! If you want to make a
+                limit that blocks multiple websites (for example, a "Social Media" limit that blocks Twitter, Facebook, and Reddit), you can
+                separate the websites with a comma. For the example, you'd write
+                <pre><code>twitter, facebook,reddit</code></pre>
+                Note that the websites are separated by a comma, but spaces don't matter &mdash; Lim will remove them for you. Also note that you don't need to include the <code>www</code> or <code>.com</code>.
+                Lim does this on purpose &mdash; many websites have multiple subdomains (like <code>mobile.twitter.com</code>) and multiple top-level domains (like <code>facebook.co.uk</code>). Lim's Simple Mode will handle these cases for you!
+            </p>
+
+            <h3>Examples</h3>
+            <p>
+                If you need to block a specific subdomain, you can do that too! For example, if you want to block Google Drive, you can just type in <code>drive.google</code> and Lim will block it for you.
+                Here are some ready-to-use examples:
+                <br />
+                <b>Social Media</b>
+                <pre><code>twitter,facebook,reddit,instagram,discord,x,twitch,quora,tiktok</code></pre>
+                <b>Communications</b>
+                <p class="muted">
+                    Be careful about blocking emergency communications &mdash; if Lim blocks a web page, you won't be able to delete the limit until the next day.
+                    <b>This can be dangerous. Proceed with caution.</b> Always ensure you have a way to contact emergency services and contacts. Lim is not responsible for any harm caused by blocking emergency communications.
+                </p>
+                <pre><code>whatsapp,telegram,signal,skype,slack,teams,meet,jitsi,webex,bluejeans,googlemeet,zoom</code></pre>
+            </p>
+        </article>
     </div>
 </body>
 

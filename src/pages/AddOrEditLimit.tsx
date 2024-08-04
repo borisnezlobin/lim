@@ -1,9 +1,7 @@
 import { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LimitControllerContext } from '../lib/LimitControllerContext';
-
-export const SIMPLE_MODE_PREFIX = "^[a-z]*:\\/\\/[a-z.]*[";
-export const SIMPLE_MODE_SUFFIX = "]\\.[a-z.]{2,}";
+import { isSimpleMode, regexToSM, smToRegex } from '../utils';
 
 /**
  * Page that has a limit-creation form (name of website, some options, and time per day)
@@ -11,11 +9,11 @@ export const SIMPLE_MODE_SUFFIX = "]\\.[a-z.]{2,}";
 function AddOrEditLimitPage() {
     const location = useLocation();
     const isAdding = location.pathname === "/create";
-
-    const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex.replaceAll(SIMPLE_MODE_PREFIX, "").replaceAll(SIMPLE_MODE_SUFFIX, ""));
+    const isSm = isAdding ? true : isSimpleMode(location.state.limit.urlRegex);
+    const [website, setWebsite] = useState<string>(isAdding ? "" : isSm ? regexToSM(location.state.limit.urlRegex) : location.state.limit.urlRegex);
     const [name, setName] = useState<string>(isAdding ? "" : location.state.limit.name);
     const [time, setTime] = useState<string>(isAdding ? "" : location.state.limit.perDay.toString());
-    const [simpleMode, setSimpleMode] = useState<boolean>(isAdding ? true : location.state.limit.urlRegex.startsWith(SIMPLE_MODE_PREFIX));
+    const [simpleMode, setSimpleMode] = useState<boolean>(isAdding ? true : isSm);
     const { addLimit, editLimit } = useContext(LimitControllerContext);
     const nav = useNavigate();
 
@@ -25,12 +23,12 @@ function AddOrEditLimitPage() {
         if (simpleMode) {
             // todo: check that the regex is actually like fr a domain with no non-alphanumeric characters
             // like
-            const validSimpleRegex = /^[a-z0-9]+$/;
+            const validSimpleRegex = /^[a-z0-9, ]+$/;
             if (!validSimpleRegex.test(regex)) {
                 alert("Invalid simple regex"); // but with ui
                 return;
             }
-            regex = SIMPLE_MODE_PREFIX + regex + SIMPLE_MODE_SUFFIX; // ...hope this works
+            regex = smToRegex(regex);
         }
 
         if (isAdding) {
@@ -49,13 +47,13 @@ function AddOrEditLimitPage() {
             <h1>{isAdding ? "Create" : "Edit"} Limit</h1>
             <form style={{ width: "100%" }}>
                 <InputWithTitle placeholder="Ex: Social Media" title='Name' value={name} onChange={setName} />
-                <InputWithTitle placeholder={`Ex: twitter${simpleMode ? "" : "\\.[a-z\.]{2,}\\/elonmusk\\/status\\/[0-9]*"}`} title='Website RegEx' value={website} onChange={setWebsite} />
+                <InputWithTitle placeholder={`Ex: twitter${simpleMode ? ", instagram, reddit" : "\\.[a-z\.]{2,}\\/elonmusk\\/status\\/[0-9]*"}`} title='Website RegEx' value={website} onChange={setWebsite} />
                 <p style={{ display: 'flex', flexDirection: 'row', gap: 6, justifyContent: 'flex-start', alignItems: 'center' }}>
                     <label style={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'flex-start', alignItems: 'center' }}>
                         <input type="checkbox" checked={simpleMode} onChange={(e) => setSimpleMode(e.target.checked)} />
-                        <p>Simple mode</p>
+                        <p>Simple Mode</p>
                     </label>
-                    <a href={url.replaceAll("regexlimits", "simplemode")} className='muted' style={{ textDecoration: "underline" }}>
+                    <a rel="noopenner noreferrer" target="_blank" href={url.replaceAll("regexlimits", "simplemode")} className='muted' style={{ textDecoration: "underline" }}>
                         What's Simple Mode?
                     </a>
                 </p>
