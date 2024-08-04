@@ -12,6 +12,7 @@ function AddOrEditLimitPage() {
     const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex);
     const [name, setName] = useState<string>(isAdding ? "" : location.state.limit.name);
     const [time, setTime] = useState<string>(isAdding ? "" : location.state.limit.perDay.toString());
+    const [simpleMode, setSimpleMode] = useState<boolean>(false);
     const { addLimit, editLimit } = useContext(LimitControllerContext);
     const nav = useNavigate();
 
@@ -33,9 +34,18 @@ function AddOrEditLimitPage() {
             <h1>{isAdding ? "Create" : "Edit"} Limit</h1>
             <form style={{ width: "100%" }}>
                 <InputWithTitle placeholder="Ex: Social Media" title='Name' value={name} onChange={setName} />
-                <InputWithTitle placeholder='Ex: twitter\.com' title='Website RegEx' value={website} onChange={setWebsite} />
+                <InputWithTitle placeholder={`Ex: twitter${simpleMode ? "" : "\\.[a-z\.]{2,}\\/elonmusk\\/status\\/[0-9]*"}`} title='Website RegEx' value={website} onChange={setWebsite} />
                 <p>
-                    Don't know what this means? Check out <a href={url} target="_blank" rel="noopener noreferrer">our guide</a>.
+                    <label style={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'flex-start', alignItems: 'center' }}>
+                        <input type="checkbox" checked={simpleMode} onChange={(e) => setSimpleMode(e.target.checked)} />
+                        <p>Simple mode</p>
+                    </label>
+                    <a href={url.replaceAll("regexlimits", "simplemode")} className='muted'>
+                        What's this?
+                    </a>
+                </p>
+                <p>
+                    Don't know what RegEx is? Check out <a href={url} target="_blank" rel="noopener noreferrer">our guide</a>.
                 </p>
                 <InputWithTitle placeholder="Ex: 20" title='Time per day' value={time} onChange={setTime} />
             </form>
@@ -60,6 +70,7 @@ const InputWithTitle = ({ title, placeholder, value, onChange }: { title: string
             </p>
             <input
                 value={value}
+                type="text"
                 placeholder={placeholder ?? title}
                 onChange={(e) => onChange(e.target.value)}
             />
