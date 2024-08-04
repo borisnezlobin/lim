@@ -15,7 +15,7 @@ function AddOrEditLimitPage() {
     const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex.replaceAll(SIMPLE_MODE_PREFIX, "").replaceAll(SIMPLE_MODE_SUFFIX, ""));
     const [name, setName] = useState<string>(isAdding ? "" : location.state.limit.name);
     const [time, setTime] = useState<string>(isAdding ? "" : location.state.limit.perDay.toString());
-    const [simpleMode, setSimpleMode] = useState<boolean>(isAdding ? false : location.state.limit.urlRegex.startsWith(SIMPLE_MODE_PREFIX));
+    const [simpleMode, setSimpleMode] = useState<boolean>(isAdding ? true : location.state.limit.urlRegex.startsWith(SIMPLE_MODE_PREFIX));
     const { addLimit, editLimit } = useContext(LimitControllerContext);
     const nav = useNavigate();
 
@@ -50,7 +50,7 @@ function AddOrEditLimitPage() {
             <form style={{ width: "100%" }}>
                 <InputWithTitle placeholder="Ex: Social Media" title='Name' value={name} onChange={setName} />
                 <InputWithTitle placeholder={`Ex: twitter${simpleMode ? "" : "\\.[a-z\.]{2,}\\/elonmusk\\/status\\/[0-9]*"}`} title='Website RegEx' value={website} onChange={setWebsite} />
-                <p>
+                <p style={{ display: 'flex', flexDirection: 'row', gap: 6, justifyContent: 'flex-start', alignItems: 'center' }}>
                     <label style={{ display: 'flex', flexDirection: 'row', gap: 2, justifyContent: 'flex-start', alignItems: 'center' }}>
                         <input type="checkbox" checked={simpleMode} onChange={(e) => setSimpleMode(e.target.checked)} />
                         <p>Simple mode</p>
@@ -59,14 +59,15 @@ function AddOrEditLimitPage() {
                         What's Simple Mode?
                     </a>
                 </p>
-                <p>
-                    Don't know what RegEx is? Check out <a href={url} target="_blank" rel="noopener noreferrer">our guide</a>.
-                </p>
                 <InputWithTitle placeholder="Ex: 20" title='Time per day' value={time} onChange={setTime} />
             </form>
+            <p>
+                Don't know what RegEx is? Check out <a href={url} target="_blank" rel="noopener noreferrer">our guide</a>.
+            </p>
 
             <button onClick={submit} style={{
-                marginRight: "1em"
+                marginRight: "1em",
+                marginTop: "1em",
             }}>
                 {isAdding ? "Create" : "Save"}
             </button>
