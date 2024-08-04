@@ -4,6 +4,7 @@ import styles from "../styles/list-item.module.css";
 import { useContext } from "react";
 import { LimitControllerContext } from "../lib/LimitControllerContext";
 import { useNavigate } from "react-router-dom";
+import { SIMPLE_MODE_PREFIX, SIMPLE_MODE_SUFFIX } from "../pages/AddOrEditLimit";
 
 const MINUTES = 60 * 1000;
 
@@ -15,6 +16,11 @@ function LimitListItem({ limit }: { limit: Limit }) {
     const { deleteLimit, cancelDeletion } = useContext(LimitControllerContext);
 
     const name = limit.name.length > 20 ? limit.name.slice(0, 20) + "..." : limit.name;
+
+
+    // @ts-expect-error replaceAll is indeed a string method without
+    const antiSimpled = limit.urlRegex.replaceAll(SIMPLE_MODE_PREFIX, "").replaceAll(SIMPLE_MODE_SUFFIX, "");
+    const regex = antiSimpled.length > 20 ? antiSimpled.slice(0, 20) + "..." : antiSimpled;
 
     const editLimit = () => {
         nav(`/edit`, { state: { limit } });
@@ -30,7 +36,7 @@ function LimitListItem({ limit }: { limit: Limit }) {
         >
             <div>
                 <h2>{name}</h2>
-                <code>{limit.urlRegex.length > 20 ? limit.urlRegex.slice(0, 20) + "..." : limit.urlRegex}</code>
+                <code>{regex}</code>
             </div>
             <div className={styles.right}>
                 <code className={`${isOvertime ? styles.overtime : ""} ${styles.usage}`}>

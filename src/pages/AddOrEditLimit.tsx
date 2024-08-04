@@ -2,6 +2,9 @@ import { useContext, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LimitControllerContext } from '../lib/LimitControllerContext';
 
+export const SIMPLE_MODE_PREFIX = "^[a-z]:\\/\\/[a-z\\.]*[";
+export const SIMPLE_MODE_SUFFIX = "]\\.[a-z\\.]{2,}\\/";
+
 /**
  * Page that has a limit-creation form (name of website, some options, and time per day)
  */
@@ -9,7 +12,7 @@ function AddOrEditLimitPage() {
     const location = useLocation();
     const isAdding = location.pathname === "/create";
 
-    const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex);
+    const [website, setWebsite] = useState<string>(isAdding ? "" : location.state.limit.urlRegex.replaceAll(SIMPLE_MODE_PREFIX, "").replaceAll(SIMPLE_MODE_SUFFIX, ""));
     const [name, setName] = useState<string>(isAdding ? "" : location.state.limit.name);
     const [time, setTime] = useState<string>(isAdding ? "" : location.state.limit.perDay.toString());
     const [simpleMode, setSimpleMode] = useState<boolean>(false);
@@ -18,10 +21,22 @@ function AddOrEditLimitPage() {
 
     const submit = () => {
         // todo: validate input (IMPORTANT (ish))
+        let regex = website;
+        if (simpleMode) {
+            // todo: check that the regex is actually like fr a domain with no non-alphanumeric characters
+            // like
+            const validSimpleRegex = /^[a-z0-9]+$/;
+            if (!validSimpleRegex.test(regex)) {
+                alert("Invalid simple regex"); // but with ui
+                return;
+            }
+            regex = SIMPLE_MODE_PREFIX + regex + SIMPLE_MODE_SUFFIX; // ...hope this works
+        }
+
         if (isAdding) {
-            addLimit(name, website, parseFloat(time));
+            addLimit(name, regex, parseFloat(time));
         } else {
-            editLimit(location.state.limit.id, name, website, parseFloat(time));
+            editLimit(location.state.limit.id, name, regex, parseFloat(time));
         }
         nav("/");
     }
@@ -40,8 +55,8 @@ function AddOrEditLimitPage() {
                         <input type="checkbox" checked={simpleMode} onChange={(e) => setSimpleMode(e.target.checked)} />
                         <p>Simple mode</p>
                     </label>
-                    <a href={url.replaceAll("regexlimits", "simplemode")} className='muted'>
-                        What's this?
+                    <a href={url.replaceAll("regexlimits", "simplemode")} className='muted' style={{ textDecoration: "underline" }}>
+                        What's Simple Mode?
                     </a>
                 </p>
                 <p>
@@ -69,6 +84,7 @@ const InputWithTitle = ({ title, placeholder, value, onChange }: { title: string
                 {title}
             </p>
             <input
+                maxLength={title === "Name" ? 20 : undefined}
                 value={value}
                 type="text"
                 placeholder={placeholder ?? title}
