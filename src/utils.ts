@@ -2,7 +2,7 @@ export const SIMPLE_MODE_PREFIX = "^[a-z]*:\\/\\/(?:[a-z.]*\\.)*(?:";
 export const SIMPLE_MODE_SUFFIX = ")\\.[a-z.]{2,}";
 
 export function smToRegex(sm: string): string {
-    sm = sm.replace(/, +/g, "|").replace(/\|+/g, "|").toLowerCase();
+    sm = sm.replace(/, */g, "|").replace(/\|+/g, "|").toLowerCase();
     return SIMPLE_MODE_PREFIX + sm + SIMPLE_MODE_SUFFIX;
 }
 
