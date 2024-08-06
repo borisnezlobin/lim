@@ -1,4 +1,4 @@
-export const SIMPLE_MODE_PREFIX = "^[a-z]*:\\/\\/[a-z.]*(?:";
+export const SIMPLE_MODE_PREFIX = "^[a-z]*:\\/\\/(?:[a-z.]*\\.)*(?:";
 export const SIMPLE_MODE_SUFFIX = ")\\.[a-z.]{2,}";
 
 export function smToRegex(sm: string): string {
