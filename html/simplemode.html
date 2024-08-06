@@ -190,6 +190,14 @@
                 </p>
                 <pre><code>whatsapp,telegram,signal,skype,slack,teams,meet,jitsi,webex,bluejeans,googlemeet,zoom</code></pre>
             </p>
+
+            <h3>Advanced</h3>
+            <p>
+                If you need a more advanced limit, you can always switch to RegEx. Simple Mode actually uses RegEx under the hood! It replaces your commas (<code>,</code>) with a RegEx "or" operator (<code>|</code>) and adds
+                a long prefix and suffix to make sure the website is matched exactly. So, the Simple Mode limit <code>x,twitter</code> would become
+                <pre><code>^[a-z]*:\\/\\/(?:[a-z.]*\\.)*(?:x|twitter)\\.[a-z.]{2,}</code></pre>
+                Feel free to use Simple Mode to create your limits, and switch to RegEx if you need more advanced limits!
+            </p>
         </article>
     </div>
 </body>

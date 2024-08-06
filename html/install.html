@@ -152,36 +152,76 @@
         <h1>Welcome to Lim!t</h1>
         <p>Lim will vigilantly lock down websites you've set limits for. You can start simply by just typing in the name
             of websites to set limits.
-            Or, take a more advanced approach by matching RegEx &mdash; the choice is yours!</p>
-        <p>
-            Lim uses
-            <a href="https://en.wikipedia.org/wiki/Regular_expression">RegEx (Regular Expressions)</a>
-            to know which websites to block. RegEx is a powerful tool! You can use it to match patterns in text, and Lim
-            uses it to match patterns in URLs.
-            This means that you can block a whole range of websites with just one RegEx pattern. Or, you can be more
-            specific and block just one website. If
-            you already know RegEx, you can start typing in your patterns right away. If you don't, don't worry! You can
-            learn more about RegEx at:
-            <ul>
-                <li>
-                    <a href="https://docs.icewarp.com/Content/IceWarp-Server/Administration-Nodes/Domains%20&%20Accounts/Simple%20RegEx%20Tutorial.htm">IceWarp's
-                    tutorial</a>
-                </li>
-                <li>
-                    <a href="https://en.wikipedia.org/wiki/Regular_expression">Wikipedia</a>
-                </li>
-                <li>
-                    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions">MDN</a> (which is more focused on RegEx in JavaScript)
-                </li>
-                <li>
-                    <a href="https://regex101.com/">Regex101</a> (a tool to test your RegEx patterns)
-                </li>
-            </ul>
-            Or, if you prefer an easier approach, Lim has some common RegEx patterns made for you. Check out <a href="regexlimits.html">Lim's RegEx Limits</a> to see some examples.
-            Also, you can use Lim's Simple Mode when
-            you're creating limits &mdash; this will give you a very simple way to block websites without having to
-            learn RegEx. Welcome to Lim!
+            Or, take a more advanced approach by matching RegEx &mdash; the choice is yours!
         </p>
+        <h3>
+            Getting Started
+        </h3>
+        <p>
+            First, we need to make sure you have Lim installed. If you're seeing this page, you're already halfway there!
+            You've installed Lim! Now, we need to make sure Lim is running. In order for Lim to do its job, it needs to run in private windows.
+            Otherwise, Lim won't be able to block websites in Private Browsing (which will be enabled if you have history disabled).
+            To make sure Lim has the permissions it needs, follow these steps:
+            <ol>
+                <li>
+                    Type <code>about:addons</code> in the address bar and press Enter. This will open Firefox's Add-Ons settings page.
+                </li>
+                <li>
+                    Find Lim in the list of Add-Ons and click on it.
+                </li>
+                <li>
+                    Make sure "Run in Private Windows" is checked.
+                </li>
+            </ol>
+            <p class="muted">
+                You'll notice that Lim needs permissions to access your data for all websites. This is scary &mdash; but don't worry. Lim is entirely
+                <a href="https://github.com/borisnezlobin/lim">open source on GitHub</a>, meaning that you can see exactly the code that is running.
+                Lim needs these permissions so it can know how much time you've spent on websites. No data ever leaves your device, and everything except
+                your limits is cleared every day.
+            </p>
+            Now, Lim is up and running! If you don't see the Lim icon in your toolbar, you can click the puzzle piece icon in the toolbar, right-click on Lim, and select "Pin to Toolbar".
+        </p>
+        <h3>
+            Setting Limits
+        </h3>
+        <p>
+            Now that Lim is installed and running, you can start setting limits! The easiest way to set limits is to use Lim's Simple Mode. If you're
+            looking for something extra, you can disable Simple Mode to use full-on RegEx. To set limits, click on the Lim icon in your toolbar and
+            click "Add Limit" &mdash; the form just needs a limit name, a RegEx or list of websites, and a time limit.
+            Check out the <a href="./simplemode.html">Simple Mode guide</a> for more information.
+            <p class="muted">
+                Always be careful about setting limits on communication platforms &mdash; in the case of an emergency,
+                you won't be able to delete the limit until the next day. Lim is not responsible for any harm caused by blocking emergency communications.
+            </p>
+        </p>
+
+        <h3>
+            Deleting Limits
+        </h3>
+        <p>
+            Want to delete a limit? Lim won't let you! This is a feature, not a bug. If you could delete a limit, you could just delete it and bypass the limit, right?
+            Lim calls this Delayed Delete &mdash; any limit you delete will only be deleted the next day. This means that if you set a limit for 1 hour, you'll have to wait
+            until the next day to delete it. This is a great way to make sure you're sticking to your limits! If you really need to delete a limit, you'll have to disable or uninstall Lim.
+        </p>
+
+        <h3>
+            Troubleshooting
+        </h3>
+        <p>
+            If you're having trouble with Lim, I'm here to help! You can reach out to me via email at <a href="mailto:{TODO}@gmail.com">a;slkdjfasdlf;@gmail.com</a>.
+        </p>
+
+        <h3>
+            Contributing
+        </h3>
+        <p>
+            Lim is open source and I'd love your help! If you're interested in contributing &mdash; whether it's a new feature, a bug fix, or just a typo &mdash; you can
+            check out the <a href="https://github.com/borisnezlobin/lim">GitHub repository</a> and open a pull request.
+        </p>
+
+        <h1>
+            Enjoy Lim!
+        </h1>
     </div>
 </body>
 

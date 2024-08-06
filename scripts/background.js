@@ -28,17 +28,13 @@ let currentRawURL = "";
 // this is a hacky way to keep the background script running
 // https://stackoverflow.com/questions/37017209/persistent-background-page-on-demand-or-an-event-page-that-doesnt-unload
 setInterval(async () => {
-    console.log("background script is running");
-
     // while we're here, we might as well update the current tab's time
     const tab = await browser.tabs.query({ active: true, currentWindow: true });
-    console.log(tab[0]);
     handleNewUrl(getURL(tab[0].url), tab[0].url, tab[0].favIconUrl, tab[0].id, false);
 }, 10000);
 
 
 browser.windows.onFocusChanged.addListener((abc) => {
-    console.log("window focus changed", abc);
     // if we switch windows from the browser, we need to add the time spent on the previous tab
     if (abc == browser.windows.WINDOW_ID_NONE) handleNewUrl(currentTab, currentRawURL, currentFavicon, currentTabId, false);
     // iffy — browser window could be a sidebar or something. might as well count that as "active", though
@@ -54,7 +50,6 @@ setInterval(() => {
         currentFavicon = "";
         startTime = Date.now();
         hasBrowserBeenAwake = false;
-        console.log("browser was asleep since", new Date(lastIntervalTime));
     } else {
         hasBrowserBeenAwake = true;
     }
@@ -69,14 +64,6 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
         (currentTab === null || currentTab === undefined || currentTab === "") ||
         (currentRawURL === null || currentRawURL === undefined || currentRawURL === "")
     ) {
-        console.log(
-            "not updating time because browserawake is",
-            hasBrowserBeenAwake,
-            ", currentwindowid is",
-            currentWindowID,
-            "or currenttab is",
-            currentTab
-        );
         currentTab = url;
         currentFavicon = favicon;
         currentTabId = tabId;
@@ -88,7 +75,6 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
     // write this time spent to storage under url's sitename
 
     let timeSpent = Date.now() - startTime;
-    console.log("time spent on", currentTab, ":", timeSpent);
 
     const lastDateUpdatedStorage = await browser.storage.local.get("lastDateUpdated");
     const lastDateUpdated = new Date(lastDateUpdatedStorage.lastDateUpdated).getDate();
@@ -177,7 +163,6 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
             let usedToday = limit.usedToday;
             if (new Date().getDate() !== lastDateUpdated) usedToday = 0;
             if (currentRawURL.match(limit.urlRegex)) {
-                console.log("limit matched", limit);
                 usedToday += timeSpent;
             }
             limit.usedToday = usedToday;
@@ -193,7 +178,6 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
 
     try {
         // send message to all content scripts (and popup) that we have updated the time spent on the current tab
-        console.log("sending message to content script on tab", tabId, "with url", currentRawURL);
         browser.tabs.sendMessage(
             currentTabId,
             {
@@ -202,9 +186,7 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
                 totalTime: totalTime,
             }
         );
-    } catch (e) {
-        console.log("error sending message to content scripts", e); // we actually don't care, becuase sendMessage fails if there are no listeners
-    }
+    } catch (e) {}
 
     // reset start time
     startTime = Date.now();
@@ -215,14 +197,12 @@ const handleNewUrl = async (url, rawUrl, favicon, tabId, isNewPickup) => {
 };
 
 browser.tabs.onActivated.addListener(async function (activeInfo) {
-    console.log("tab activated:", activeInfo);
     let tab = await browser.tabs.get(activeInfo.tabId);
     handleNewUrl(getURL(tab.url), tab.url, tab.favIconUrl, tab.id, true);
 });
 
 browser.tabs.onUpdated.addListener(async function (tabId, changeInfo, tabInfo) {
     if (changeInfo.url) {
-        console.log("tab updated:", tabInfo.url);
         handleNewUrl(getURL(tabInfo.url), tabInfo.url, tabInfo.favIconUrl, tabInfo.id, false);
     }
 });
