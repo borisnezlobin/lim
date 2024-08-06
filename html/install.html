@@ -3,6 +3,7 @@
 
 <head>
     <title>Welcome to Lim!</title>
+    <link rel="icon" href="../icon.svg" type="image/x-icon" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 
@@ -41,6 +42,11 @@
 
         h1 {
             font-size: 3.2em;
+            line-height: 1.1;
+        }
+
+        h3 {
+            font-size: 1.4em;
             line-height: 1.1;
         }
 
@@ -144,12 +150,17 @@
                 background-color: #f9f9f9;
             }
         }
+
+        .muted {
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0;
+        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h1>Welcome to Lim!t</h1>
+        <h1>Welcome to Lim</h1>
         <p>Lim will vigilantly lock down websites you've set limits for. You can start simply by just typing in the name
             of websites to set limits.
             Or, take a more advanced approach by matching RegEx &mdash; the choice is yours!
@@ -173,13 +184,13 @@
                     Make sure "Run in Private Windows" is checked.
                 </li>
             </ol>
-            <p class="muted">
-                You'll notice that Lim needs permissions to access your data for all websites. This is scary &mdash; but don't worry. Lim is entirely
-                <a href="https://github.com/borisnezlobin/lim">open source on GitHub</a>, meaning that you can see exactly the code that is running.
-                Lim needs these permissions so it can know how much time you've spent on websites. No data ever leaves your device, and everything except
-                your limits is cleared every day.
-            </p>
             Now, Lim is up and running! If you don't see the Lim icon in your toolbar, you can click the puzzle piece icon in the toolbar, right-click on Lim, and select "Pin to Toolbar".
+        </p>
+        <p class="muted">
+            You'll notice that Lim needs permissions to access your data for all websites. This is scary &mdash; but don't worry. Lim is entirely
+            <a href="https://github.com/borisnezlobin/lim">open source on GitHub</a>, meaning that you can see exactly the code that is running.
+            Lim needs these permissions so it can know how much time you've spent on websites. No data ever leaves your device, and everything except
+            your limits is cleared every day.
         </p>
         <h3>
             Setting Limits
@@ -219,7 +230,7 @@
             check out the <a href="https://github.com/borisnezlobin/lim">GitHub repository</a> and open a pull request.
         </p>
 
-        <h1>
+        <h1 style="width: full; text-align: center;">
             Enjoy Lim!
         </h1>
     </div>
